@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, watchEffect, computed } from "vue";
 import { useMouse } from "../utils/mouse";
 let { x, y } = useMouse();
 /* let title = ref("");
@@ -52,12 +52,21 @@ function add() {
 
 let { title, todos, addTodo, clear, active, all, allDone } = useTodos();
 
+// function useStorage(name, value=[]){
+//     let data = ref(JSON.parse(localStorage.getItem(name)|| value));
+//     watchEffect(()=>{
+//         localStorage.setItem(name,JSON.stringify(data.value))
+//     })
+//     return data
+// }
 function useTodos() {
     let title = ref("");
     let todos = ref([{
         title: "学习Vue",
         done: false
     }]);
+    // let todos = useStorage('todos',[])
+    // console.log('todos: ', todos);
 
     function addTodo() {
         todos.value.push({
