@@ -9,7 +9,8 @@ import HelloWorld from "./components/HelloWorld.vue";
     <!-- <img alt="Vue logo" src="./assets/logo.png" /> -->
     <!-- <HelloWorld msg="Hello Vue 3 + Vite TYWD" /> -->
     <router-link to="/">首页</router-link> |
-    <router-link to="/about">关于</router-link>
+    <router-link to="/about">关于</router-link> |
+    <router-link to="/ty">天宇无敌</router-link>
     <router-view></router-view>
     <!-- <router-view v-slot="{ Component }">
       <transition name="route" mode="out-in">
