@@ -8,17 +8,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useStore } from "vuex";
+import { ref, computed } from 'vue'
+import { useStore } from 'vuex'
 // import { useStore } from '../store/gvuex'
-let store = useStore();
-let count = computed(() => store.state.count);
+let store = useStore()
+let count = computed(() => store.state.count)
 let double = computed(() => store.getters.double)
 function add() {
-  store.commit("add");
+  store.commit('add')
 }
 function asyncAdd() {
-    store.dispatch('asyncAdd')
+  store.dispatch('asyncAdd')
 }
 </script>
 
@@ -26,8 +26,8 @@ function asyncAdd() {
 h1 {
   color: red;
 }
-.count{
-    cursor: pointer;
+.count {
+  cursor: pointer;
 }
 </style>
 >

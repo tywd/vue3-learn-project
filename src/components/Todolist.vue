@@ -36,9 +36,9 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from "vue";
-import { useMouse } from "../utils/mouse";
-let { x, y } = useMouse();
+import { ref, computed, reactive } from 'vue'
+import { useMouse } from '../utils/mouse'
+let { x, y } = useMouse()
 /* let title = ref("");
 let todos = ref([{ title: "学习Vue", done: false }]);
 function addTodo() {
@@ -63,9 +63,9 @@ let allDone = computed({
   },
 });*/
 
-let count = ref(1);
+let count = ref(1)
 function add() {
-  count.value++;
+  count.value++
 }
 
 let {
@@ -82,75 +82,75 @@ let {
   beforeEnter,
   enter,
   afterEnter,
-} = useTodos();
+} = useTodos()
 
 function useTodos() {
-  let title = ref("");
+  let title = ref('')
   let todos = ref([
     {
-      title: "学习Vue",
+      title: '学习Vue',
       done: false,
     },
-  ]);
-  let showModal = ref(false);
+  ])
+  let showModal = ref(false)
 
   function addTodo() {
     if (!title.value) {
-      showModal.value = true;
+      showModal.value = true
       setTimeout(() => {
-        showModal.value = false;
-      }, 1500);
-      return;
+        showModal.value = false
+      }, 1500)
+      return
     }
     todos.value.push({
       title: title.value,
       done: false,
-    });
-    title.value = "";
+    })
+    title.value = ''
   }
 
   function removeTodo(e, i) {
-    todos.value.splice(i, 1);
+    todos.value.splice(i, 1)
   }
 
   function clear() {
-    todos.value = todos.value.filter((v) => !v.done);
+    todos.value = todos.value.filter((v) => !v.done)
   }
   let active = computed(() => {
-    return todos.value.filter((v) => !v.done).length;
-  });
-  let all = computed(() => todos.value.length);
+    return todos.value.filter((v) => !v.done).length
+  })
+  let all = computed(() => todos.value.length)
   let allDone = computed({
     get: function () {
-      return active.value === 0;
+      return active.value === 0
     },
     set: function (value) {
       todos.value.forEach((todo) => {
-        todo.done = value;
-      });
+        todo.done = value
+      })
     },
-  });
-  let animate = reactive({ show: false, el: null });
+  })
+  let animate = reactive({ show: false, el: null })
   function beforeEnter(el) {
-    let dom = animate.el;
-    let rect = dom.getBoundingClientRect();
-    let x = window.innerWidth - rect.left - 60;
-    let y = rect.top - 10;
-    el.style.transform = `translate(-${x}px, ${y}px)`;
+    let dom = animate.el
+    let rect = dom.getBoundingClientRect()
+    let x = window.innerWidth - rect.left - 60
+    let y = rect.top - 10
+    el.style.transform = `translate(-${x}px, ${y}px)`
   }
   function enter(el, done) {
-    document.body.offsetHeight;
-    el.style.transform = `translate(0,0)`;
-    el.addEventListener("transitionend", done);
+    document.body.offsetHeight
+    el.style.transform = `translate(0,0)`
+    el.addEventListener('transitionend', done)
   }
   function afterEnter(el) {
-    animate.show = false;
-    el.style.display = "none";
+    animate.show = false
+    el.style.display = 'none'
   }
   function removeTodo(e, i) {
-    animate.el = e.target;
-    animate.show = true;
-    todos.value.splice(i, 1);
+    animate.el = e.target
+    animate.show = true
+    todos.value.splice(i, 1)
   }
   return {
     title,
@@ -166,7 +166,7 @@ function useTodos() {
     beforeEnter,
     enter,
     afterEnter,
-  };
+  }
 }
 </script>
 
@@ -220,8 +220,8 @@ h1 {
   z-index: 100;
   transition: all 0.5s linear;
 }
-.dustbin{
-  position:fixed;
+.dustbin {
+  position: fixed;
   top: 10px;
   right: 10px;
 }

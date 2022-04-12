@@ -29,53 +29,53 @@
 </template>
 
 <script setup>
-import { ref, computed, watchEffect } from "vue";
+import { ref, computed, watchEffect } from 'vue'
 // import { useMouse } from "../utils/mouse";
-import { useFavicon,useMouse } from "../utils/index";
-let { favicon } = useFavicon();
+import { useFavicon, useMouse } from '../utils/index'
+let { favicon } = useFavicon()
 function loading() {
-  favicon.value = "/icon-more@3x.png";
+  favicon.value = '/icon-more@3x.png'
 }
-let { x, y } = useMouse();
-let { title, todos, active, all, allDone, addTodo, clear } = useTodos();
+let { x, y } = useMouse()
+let { title, todos, active, all, allDone, addTodo, clear } = useTodos()
 
 function useTodos() {
-  let title = ref("");
+  let title = ref('')
   //   let todos = ref([{ title: "学习Vue", done: false }]);
-  let todos = ref(JSON.parse(localStorage.getItem("todos") || "[]"));
+  let todos = ref(JSON.parse(localStorage.getItem('todos') || '[]'))
 
   watchEffect(() => {
     // watchEffect可以自动收集依赖，不需要指定监听的属性
-    localStorage.setItem("todos", JSON.stringify(todos.value));
-    console.log("todos.value: ", todos.value);
-  });
+    localStorage.setItem('todos', JSON.stringify(todos.value))
+    console.log('todos.value: ', todos.value)
+  })
 
   function addTodo() {
-    todos.value.push({ title: title.value, done: false });
-    title.value = "";
+    todos.value.push({ title: title.value, done: false })
+    title.value = ''
   }
   function clear() {
     if (active.value <= 0) {
-      alert("请至少选中1个");
-      return;
+      alert('请至少选中1个')
+      return
     }
-    todos.value = todos.value.filter((v) => !v.done);
+    todos.value = todos.value.filter((v) => !v.done)
   }
   let active = computed(() => {
-    return todos.value.filter((v) => v.done).length;
-  });
-  let all = computed(() => todos.value.length);
+    return todos.value.filter((v) => v.done).length
+  })
+  let all = computed(() => todos.value.length)
   let allDone = computed({
     get: function () {
-      return active.value === all.value;
+      return active.value === all.value
     },
     set: function (value) {
       todos.value.forEach((todo) => {
-        todo.done = value;
-      });
+        todo.done = value
+      })
     },
-  });
-  return { title, todos, active, all, allDone, addTodo, clear };
+  })
+  return { title, todos, active, all, allDone, addTodo, clear }
 }
 </script>
 
