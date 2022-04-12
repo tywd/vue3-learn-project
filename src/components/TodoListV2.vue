@@ -1,112 +1,89 @@
-<!-- v3 写法 -->
+<!--
+ * @Author: scy
+ * @Date: 2022-04-12 17:59:52
+ * @LastEditors: scy
+ * @LastEditTime: 2022-04-12 18:03:05
+ * @FilePath: /vue3-learn-project/src/components/TodoListV2.vue
+ * @Description: 
+-->
 <template>
   <div>
     <input type="text" v-model="title" @keydown.enter="addTodo" />
-    <button v-if="active < all" @click="clear">清理</button>
+    <button v-if="all > 0" @click="clear">清理</button>
     <ul v-if="todos.length">
       <li v-for="(todo, index) in todos" :key="index">
-        <input type="checkbox" v-model="todo.done" />
-        <span :class="{ done: todo.done }"> {{ todo.title }}</span>
+        <input type="checkbox" v-model="todo.done" :id="index" />
+        <label :for="index">
+          <span :class="{ done: todo.done }"> {{ todo.title }}</span>
+        </label>
       </li>
     </ul>
     <div v-else>暂无数据</div>
-    <div>
+    <div v-if="all !== 0">
       全选<input type="checkbox" v-model="allDone" />
       <span> {{ active }} / {{ all }} </span>
     </div>
+
+    <button @click="loading">change icon</button>
   </div>
 </template>
 
 <script setup>
-import { ref, watchEffect, computed } from "vue";
-import { useMouse } from "../utils/mouse";
+import { ref, computed, watchEffect } from "vue";
+// import { useMouse } from "../utils/mouse";
+import { useFavicon,useMouse } from "../utils/index";
+let { favicon } = useFavicon();
+function loading() {
+  favicon.value = "/icon-more@3x.png";
+}
 let { x, y } = useMouse();
-/* let title = ref("");
-let todos = ref([{ title: "学习Vue", done: false }]);
-function addTodo() {
-  todos.value.push({ title: title.value, done: false });
-  title.value = "";
-}
-function clear() {
-  todos.value = todos.value.filter((v) => !v.done);
-}
-let active = computed(() => {
-  return todos.value.filter((v) => !v.done).length;
-});
-let all = computed(() => todos.value.length);
-let allDone = computed({
-  get: function () {
-    return active.value === 0;
-  },
-  set: function (value) {
-    todos.value.forEach((todo) => {
-      todo.done = value;
-    });
-  },
-});*/
+let { title, todos, active, all, allDone, addTodo, clear } = useTodos();
 
-let count = ref(1);
-function add() {
-  count.value++;
-}
-
-let { title, todos, addTodo, clear, active, all, allDone } = useTodos();
-
-// function useStorage(name, value=[]){
-//     let data = ref(JSON.parse(localStorage.getItem(name)|| value));
-//     watchEffect(()=>{
-//         localStorage.setItem(name,JSON.stringify(data.value))
-//     })
-//     return data
-// }
 function useTodos() {
-    let title = ref("");
-    let todos = ref([{
-        title: "学习Vue",
-        done: false
-    }]);
-    // let todos = useStorage('todos',[])
-    // console.log('todos: ', todos);
+  let title = ref("");
+  //   let todos = ref([{ title: "学习Vue", done: false }]);
+  let todos = ref(JSON.parse(localStorage.getItem("todos") || "[]"));
 
-    function addTodo() {
-        todos.value.push({
-            title: title.value,
-            done: false,
-        });
-        title.value = "";
-    }
+  watchEffect(() => {
+    // watchEffect可以自动收集依赖，不需要指定监听的属性
+    localStorage.setItem("todos", JSON.stringify(todos.value));
+    console.log("todos.value: ", todos.value);
+  });
 
-    function clear() {
-        todos.value = todos.value.filter((v) => !v.done);
+  function addTodo() {
+    todos.value.push({ title: title.value, done: false });
+    title.value = "";
+  }
+  function clear() {
+    if (active.value <= 0) {
+      alert("请至少选中1个");
+      return;
     }
-    let active = computed(() => {
-        return todos.value.filter((v) => !v.done).length;
-    });
-    let all = computed(() => todos.value.length);
-    let allDone = computed({
-        get: function () {
-            return active.value === 0;
-        },
-        set: function (value) {
-            todos.value.forEach((todo) => {
-                todo.done = value;
-            });
-        },
-    });
-    return {
-        title,
-        todos,
-        addTodo,
-        clear,
-        active,
-        all,
-        allDone
-    };
+    todos.value = todos.value.filter((v) => !v.done);
+  }
+  let active = computed(() => {
+    return todos.value.filter((v) => v.done).length;
+  });
+  let all = computed(() => todos.value.length);
+  let allDone = computed({
+    get: function () {
+      return active.value === all.value;
+    },
+    set: function (value) {
+      todos.value.forEach((todo) => {
+        todo.done = value;
+      });
+    },
+  });
+  return { title, todos, active, all, allDone, addTodo, clear };
 }
 </script>
 
-<style scoped>
+<style>
 h1 {
   color: red;
 }
-</style>>
+.done {
+  color: red;
+}
+</style>
