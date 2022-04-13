@@ -2,10 +2,19 @@ import {
   defineConfig
 } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import Components from 'unplugin-vue-components/vite'
+import Components from 'unplugin-vue-components/vite' // 自动导入UI
+// 支持vue, vue-router, vue-i18n, @vueuse/head, @vueuse/core等自动引入
 import {
   AntDesignVueResolver,
 } from 'unplugin-vue-components/resolvers'
+import AutoImport from 'unplugin-auto-import/vite' // 自动导入Vue的hooks
+import {
+  createStyleImportPlugin,
+  AndDesignVueResolve,
+} from 'vite-plugin-style-import' // 自动导入非组件模块的样式，入弹窗提示andDesign的message
+const {
+  getThemeVariables
+} = require('ant-design-vue/dist/theme');
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -16,6 +25,43 @@ export default defineConfig({
       resolvers: [
         AntDesignVueResolver(),
       ],
-    })
+    }),
+    /* AutoImport({
+      imports: ['vue', 'vue-router', 'vue-i18n', '@vueuse/head', '@vueuse/core'],
+      // 可以选择auto-import.d.ts生成的位置，使用ts建议设置为'src/auto-import.d.ts'
+      // dts: 'src/auto-import.d.ts'
+    }), */
+    createStyleImportPlugin({
+      resolves: [
+        AndDesignVueResolve(),
+      ],
+      libs: [
+        // If you don’t have the resolve you need, you can write it directly in the lib, or you can provide us with PR
+        {
+          libraryName: 'ant-design-vue',
+          esModule: true,
+          resolveStyle: (name) => {
+            return `ant-design-vue/es/${name}/style/index`
+          },
+        },
+      ],
+    }),
   ],
+  // 1. If you are using the ant-design series, you need to configure this
+  // 2. Make sure less is installed in the dependency `yarn add less -D`
+  css: {
+    preprocessorOptions: {
+      less: {
+        javascriptEnabled: true,
+        /* modifyVars: {
+          'primary-color': '#1DA57A',
+          'link-color': '#1DA57A',
+          'border-radius-base': '2px',
+        }, */
+        modifyVars: getThemeVariables({
+          dark: true, // 开启暗黑模式
+        }),
+      },
+    },
+  },
 })
