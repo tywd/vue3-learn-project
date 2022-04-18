@@ -6,17 +6,32 @@
 </template>
 
 <script setup>
-import { reactive, computed, watchEffect } from 'vue'
+import { ref, reactive, computed, watchEffect, effect } from 'vue'
 
+let str = ref('ty')
 let obj = reactive({
   count: 1,
 })
 let double = computed(() => obj.count * 2)
-function add() {
-  obj.count++
-}
+
+const num = reactive({ currentNum: 0 })
+
+let changeValue
+
+effect(() => {
+  changeValue = num.currentNum
+  // console.log('effect ', changeValue, num.currentNum)
+  console.log('effect ', obj.count, double.value, str.value)
+  // console.log('effect ', obj.count, str.value)
+})
 
 watchEffect(() => {
-  console.log('数据被修改了', obj.count, double.value)
+  // console.log('watchEffec：', changeValue, num.currentNum)
+  // console.log('watchEffect：', obj.count, double.value, str.value)
 })
+
+function add() {
+  obj.count++
+  // num.currentNum++
+}
 </script>
