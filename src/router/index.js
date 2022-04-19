@@ -3,6 +3,8 @@ import { createRouter, createWebHashHistory } from 'vue-router' // createRouter 
 import Home from '../pages/Home.vue'
 import About from '../pages/About.vue'
 import Test from '../pages/Test.vue'
+import TestEffect from '../pages/TestEffect.vue'
+import TestReactive from '../pages/TestReactive.vue'
 
 const routes = [
     {
@@ -19,6 +21,16 @@ const routes = [
         path: '/test',
         name: 'Test',
         component: Test
+    },
+    {
+        path: '/test-effect',
+        name: 'TestEffect',
+        component: TestEffect
+    },
+    {
+        path: '/test-reactive',
+        name: 'TestReactive',
+        component: TestReactive
     }
 ]
 
