@@ -5,6 +5,7 @@ import About from '../pages/About.vue'
 import Test from '../pages/Test.vue'
 import TestEffect from '../pages/TestEffect.vue'
 import TestReactive from '../pages/TestReactive.vue'
+import TestSlot from '../pages/TestSlot.vue'
 
 const routes = [
     {
@@ -31,6 +32,11 @@ const routes = [
         path: '/test-reactive',
         name: 'TestReactive',
         component: TestReactive
+    },
+    {
+        path: '/test-slot',
+        name: 'TestSlot',
+        component: TestSlot
     }
 ]
 
