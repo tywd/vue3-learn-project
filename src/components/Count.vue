@@ -30,4 +30,3 @@ h1 {
   cursor: pointer;
 }
 </style>
->
