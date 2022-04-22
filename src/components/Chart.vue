@@ -15,8 +15,7 @@
 
 <script setup>
 import * as echarts from 'echarts'
-import { getCurrentInstance, onMounted, reactive, onBeforeUnmount } from 'vue'
-let { proxy } = getCurrentInstance()
+import { onMounted, reactive, onBeforeUnmount } from 'vue'
 defineProps({
   className: {
     type: String,

@@ -84,7 +84,10 @@
 <script setup>
 import { ref, reactive, toRefs, getCurrentInstance } from 'vue'
 import Chart from '../components/Chart.vue'
+
 const { proxy, ctx } = getCurrentInstance()
+const internalInstance = getCurrentInstance()
+console.log('internalInstance: ', internalInstance);
 
 // tab1
 
