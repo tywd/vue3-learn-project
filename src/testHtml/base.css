@@ -1,0 +1,234 @@
+.txt-of {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap
+}
+
+.locked {
+    overflow: hidden !important
+}
+
+.fw500 {
+    font-weight: 500
+}
+
+.fw600 {
+    font-weight: 600
+}
+
+.fw700 {
+    font-weight: 700
+}
+
+a,
+abbr,
+acronym,
+address,
+applet,
+article,
+aside,
+audio,
+b,
+big,
+blockquote,
+body,
+canvas,
+caption,
+center,
+cite,
+code,
+dd,
+del,
+details,
+dfn,
+div,
+dl,
+dt,
+em,
+embed,
+fieldset,
+figcaption,
+figure,
+footer,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+header,
+hgroup,
+html,
+i,
+iframe,
+img,
+ins,
+kbd,
+label,
+legend,
+li,
+mark,
+menu,
+nav,
+object,
+ol,
+output,
+p,
+pre,
+q,
+ruby,
+s,
+samp,
+section,
+small,
+span,
+strike,
+strong,
+sub,
+summary,
+sup,
+table,
+tbody,
+td,
+tfoot,
+th,
+thead,
+time,
+tr,
+tt,
+u,
+ul,
+var,
+video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    font-size: 100%;
+    vertical-align: baseline;
+    -webkit-tap-highlight-color: transparent
+}
+
+html {
+    line-height: 1
+}
+
+strong {
+    font-weight: 700
+}
+
+ol,
+ul {
+    list-style: none
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0
+}
+
+caption,
+td,
+th {
+    text-align: left;
+    font-weight: 400;
+    vertical-align: middle
+}
+
+blockquote,
+q {
+    quotes: none
+}
+
+blockquote:after,
+blockquote:before,
+q:after,
+q:before {
+    content: "";
+    content: none
+}
+
+a img {
+    border: none;
+    outline: none
+}
+
+a {
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+    -webkit-user-select: none;
+    -moz-user-focus: none;
+    -moz-user-select: none;
+    text-decoration: none
+}
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+    display: block
+}
+
+input {
+    -webkit-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto
+}
+
+input,
+textarea {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none
+}
+
+:root {
+    --env-top: env(safe-area-inset-top);
+    --env-bottom: env(safe-area-inset-bottom);
+    --env-left: env(safe-area-inset-left);
+    --env-right: env(safe-area-inset-right);
+    --constant-top: constant(safe-area-inset-top);
+    --constant-bottom: constant(safe-area-inset-bottom);
+    --constant-left: constant(safe-area-inset-left);
+    --constant-right: constant(safe-area-inset-right)
+}
+
+[v-cloak] {
+    display: none !important
+}
+
+body,
+html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-overflow-scrolling: touch;
+    -webkit-text-size-adjust: 100% !important;
+    -moz-text-size-adjust: 100% !important;
+    -ms-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+    color: #333;
+    font-family: PingFangSC-Regular, PingFang-SC, \\5b8b\4f53, Microsoft YaHei, tahoma, arial, sans-serif;
+    background: #fcfcfc
+}
+
+button,
+input {
+    border: none;
+    outline: none
+}
+
+div#app {
+    position: relative;
+    font-size: .3rem
+}
