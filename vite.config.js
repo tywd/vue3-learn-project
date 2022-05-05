@@ -12,6 +12,7 @@ import {
   createStyleImportPlugin,
   AndDesignVueResolve,
 } from 'vite-plugin-style-import' // 自动导入非组件模块的样式，入弹窗提示andDesign的message
+import path from 'path'
 const {
   getThemeVariables
 } = require('ant-design-vue/dist/theme');
@@ -62,6 +63,27 @@ export default defineConfig({
           dark: true, // 开启暗黑模式
         }),
       },
+      scss: {
+        additionalData: `@import "@/styles/index.scss";`
+      }
     },
   },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+      "api": path.resolve(__dirname, "src/api"),
+    }
+  },
+  server: {
+    port: 3000, //启动端口
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:9111', //实际请求地址
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      },
+    },
+    cors: true
+  }
 })

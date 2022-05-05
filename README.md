@@ -7,7 +7,7 @@ This template should help get you started developing with Vue 3 in Vite. The tem
 - [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
 
 # Vue3一些使用的新方法新特性
-尤大推荐的神器`unplugin-vue-components`,解放双手，不需再手动引入组件
+尤大推荐的神器`unplugin-vue-components`,解放双手，不需再手动引入组件 [unplugin-vue-components](https://github.com/antfu/unplugin-vue-components)
 ui(Element-ui)库,vue hooks)
 ### unplugin-vue-components/vite
 ```js
@@ -130,4 +130,39 @@ export default defineConfig({
     },
   },
 })
+```
+# 配置alias
+```js
+export default defineConfig({
+  ...
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+      "api": path.resolve(__dirname, "src/api"),
+    }
+  }
+  ...
+})
+```
+
+# 配置跨域代理
+```js
+export default defineConfig({
+  ...
+  server: {
+    port: 3000, //启动端口
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:9111', //实际请求地址
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      },
+    },
+    cors: true
+  }
+  ...
+})
+```
+
 ```

@@ -6,6 +6,8 @@ import Test from '../pages/Test.vue'
 import TestEffect from '../pages/TestEffect.vue'
 import TestReactive from '../pages/TestReactive.vue'
 import TestSlot from '../pages/TestSlot.vue'
+import UploadFile from '../pages/UploadFile.vue'
+import GoodsList from '../pages/GoodsList.vue'
 
 const routes = [
     {
@@ -37,7 +39,19 @@ const routes = [
         path: '/test-slot',
         name: 'TestSlot',
         component: TestSlot
-    }
+    },
+    {
+        path: '/goods-list',
+        name: 'GoodsList',
+        component: GoodsList
+    },
+    {
+        path: '/upload-file',
+        name: 'UploadFile',
+        component: UploadFile
+    },
+    
+   
 ]
 
 const router = createRouter({
