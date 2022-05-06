@@ -1,5 +1,5 @@
 import axios from 'axios'
-// const LOCALURL = 'http://localhost:9111/'
+const LOCALURL911 = 'http://localhost:9111/'
 const LOCALURL = '/api'
 const instance = axios.create({
   baseURL: LOCALURL,
@@ -7,11 +7,11 @@ const instance = axios.create({
   // headers: {
   //   'X-Custom-Header': 'foobar'
   // },
-  responseType: 'json' // 默认的 // 表示服务器响应的数据类型
+  // responseType: 'json' // 默认的 // 表示服务器响应的数据类型
 });
 // httpService.defaults.headers.common['Authorization'] = 'Bearer' + localStorage.getItem('token')
 // post请求提交的是json格式的数据，则content-type如下
-// instance.defaults.headers.post['Content-Type'] = 'application/json charset=utf-8'
+instance.defaults.headers.post['content-type'] = 'application/json charset=utf-8'
 
 /**
  * 设置拦截器 request请求拦截
@@ -94,30 +94,57 @@ instance.interceptors.response.use(response => {
   return Promise.reject(error)
 })
 
-function request(params) {
-  const {
-    url,
-    type,
-    data,
-    isUpload
-  } = params;
-  const subData = type === 'post' ? { data } : { params: data }
-  const otherData = type === 'post' && isUpload ? { headers: { 'Content-Type': 'multipart/form-data' }} : {}
-  return new Promise((resolve, reject) => {
-    instance({
+class Request {
+  constructor() {
+
+  }
+  request(params) {
+    console.log('params: ', params);
+    const {
       url,
-      method: type,
-      ...subData,
-      // ...otherData
-    }).then(response => {
-      resolve(response)
-    }).catch(error => {
-      reject(error)
+      type,
+      data
+    } = params;
+    const subData = type === 'post' ? {
+      data
+    } : {
+      params: data
+    }
+    return new Promise((resolve, reject) => {
+      instance({
+        url,
+        method: type,
+        ...subData,
+      }).then(response => {
+        resolve(response)
+      }).catch(error => {
+        reject(error)
+      })
     })
-  })
+  }
+
+  uploadRequest(params) {
+    const {
+      url,
+      type,
+      data
+    } = params;
+    axios.defaults.baseURL = LOCALURL911
+    axios({
+        url,
+        method: type,
+        data,
+      })
+      .then(function (response) {
+        console.log('handleFileUpload: ', response)
+      })
+      .catch(function (error) {
+        console.log('error: ', error)
+      })
+  }
 }
 
-export default request
+export default new Request()
 
 // /* *
 //  *  get请求
