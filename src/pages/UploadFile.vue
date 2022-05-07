@@ -1,7 +1,6 @@
 <template>
   <h1>这是文件上传页</h1>
-  <h1>用户中心</h1>
-  <loading-outlined style="color:#eb2f96;font-size:20px" />
+  <loading-outlined />
   <div
     ref='drag'
     id="drag"
@@ -14,22 +13,22 @@
   </div>
 
   <div>
-    <p>文件上传的进度</p>
     <a-progress
       :strokeWidth='20'
       :percent="uploadProgress"
     ></a-progress>
+    <p>文件上传的进度</p>
   </div>
   <div>
     <a-button @click="uploadFile">上传大文件</a-button>
     <a-button @click="handleBtn">上传小文件</a-button>
   </div>
   <div>
-    <p>计算hash的进度</p>
     <a-progress
       :strokeWidth='20'
       :percent="state.hashProgress"
     ></a-progress>
+    <p>计算hash的进度</p>
   </div>
   <!-- chunk.progress 
       progress<0 报错 显示红色
@@ -40,6 +39,7 @@
       9 3*3
       100 10*10 -->
   <!-- <pre>{{state.chunks}}</pre> -->
+  <p>每一片的上传进度</p>
   <div
     class="cube-container"
     :style="{width:cubeWidth+'px'}"
@@ -95,7 +95,7 @@ let uploadProgress = computed(() => {
   let loaded = chunks
     .map((item) => item.chunk.size * item.progress)
     .reduce((acc, cur) => acc + cur, 0)
-  let progress = Number(((loaded) / file.size).toFixed(2))
+  let progress = Number((loaded / file.size).toFixed(2))
   return progress
 })
 
@@ -138,6 +138,7 @@ const bindEvents = () => {
     const fileList = e.dataTransfer.files
     drag.value.style.borderColor = '#eee'
     state.file = fileList[0]
+    console.log('state.file: ', state.file)
     e.preventDefault()
     // const e.dataTrans
   })
@@ -152,7 +153,8 @@ const uploadFile = async () => {
   } else {
     console.log('格式正确')
   } */
-  const fileChunks = createFileChunks(file)
+  const fileChunks = createFileChunks(file) // 1.创建切片-----------------------------------
+  // 2.切片hash计算-----------------------------------
   let hash = null
   try {
     hash = await calculateHashSample()
@@ -165,21 +167,19 @@ const uploadFile = async () => {
   } catch (error) {
     alert(error)
   }
-  // 问一下后端，文件是否上传过，如果没有，是否有存在的切片
-  /* const {
-    data: { uploaded, uploadedList },
-  } = await axios({
-    method: 'post',
-    url: '/file/checkfile',
-    hash: state.hash,
-    ext: file.name.split('.').pop(),
-  })
+
+  // hash计算后可以问一下后端，文件是否上传过，如果不存在，就看是否有存在的切片
+  const {
+    data: {
+      data: { uploaded, uploadedList },
+    },
+  } = await checkfile(state.hash, file.name.split('.').pop())
   if (uploaded) {
     // 文件已存在 则秒传
     return proxy.$message.info('秒传成功')
-  } */
+  }
 
-  let chunksMap = fileChunks.map((chunk, index) => {
+  state.chunks = fileChunks.map((chunk, index) => {
     const name = hash + '-' + index
     return {
       hash,
@@ -187,24 +187,33 @@ const uploadFile = async () => {
       index,
       chunk: chunk.file,
       // 设置进度条，已经上传的，设为100
-      // progress: uploadedList.indexOf(name) > -1 ? 100 : 0,
+      progress: uploadedList.indexOf(name) > -1 ? 100 : 0,
     }
   })
-  state.chunks = chunksMap
+  // 2.切片hash计算-----------------------------------END
 
-  /* fileChunks.forEach((chunk, index) => {
-    const name = hash + '-' + index
-    let data = {
+  // 3.切片上传 - 断点续传
+  await uploadFileChunks(uploadedList)
+  // 4.合并切片
+  const {
+    data: { code, msg },
+  } = await mergeFileChunks()
+  if (code === 0) {
+    proxy.$message.info(msg)
+  } else {
+    proxy.$message.error('出错')
+  }
+}
+
+const checkfile = async (hash, ext) => {
+  return await axios({
+    method: 'get',
+    url: '/file/check',
+    params: {
       hash,
-      name,
-      index,
-      chunk: chunk.file,
-      // 设置进度条，已经上传的，设为100
-      // progress: uploadedList.indexOf(name) > -1 ? 100 : 0,
-    }
-    state.chunks.push(data)
-  }) */
-  await uploadFileChunks()
+      ext,
+    },
+  })
 }
 
 // 1.创建切片
@@ -325,38 +334,85 @@ const calculateHashSample = async () => {
   })
 }
 
-// 3.上传切片
-const uploadFileChunks = async () => {
+// 3.上传切片 - 断点续传
+const uploadFileChunks = async (uploadedList = []) => {
   // 每个切片都为FormData
   const requests = state.chunks
+    .filter((chunk) => uploadedList.indexOf(chunk.name) === -1) // 过滤已上传的切片，剩下未上传的继续上传，即断点续传
     .map((chunk, index) => {
-      let formData = new FormData()
+      const formData = new FormData()
       formData.append('hash', chunk.hash)
       formData.append('chunk', chunk.chunk)
       formData.append('name', chunk.name)
-      return { formData, index: chunk.index }
+      return { formData, index: chunk.index, error: 0 }
     })
-    .map(({ formData, index }) =>
-      axios({
-        method: 'post',
-        url: '/file/bigUpload',
-        data: formData,
-        onUploadProgress: (progress) => {
-          // 不是整体的进度条了，而是每个区块有自己的进度条，整体的进度条需要计算
-          state.chunks[index].progress = Number(
-            ((progress.loaded / progress.total) * 100).toFixed(2)
-          )
-        },
-      })
-    )
+  /* .map(async ({ formData, index }) => {
+      // 此处的 index 取得是上面map return出来的chunk.index，由于我们进行了filter，所以不能再使用上一个map一开始的index
+      return await uploadBigRequest(formData, index)
+    }) */
+  // await Promise.all(requests)
 
-  await Promise.all(requests)
-  const { data } = await mergeFileChunks()
-  if (data.code === 0) {
-    proxy.$message.info(data.msg)
-  } else {
-    proxy.$message.error('出错')
-  }
+  // TODO 并发量控制
+  // 尝试申请tcp链接过多，也会造成卡顿
+  // 异步的并发数控制，
+  await resquestControl(requests)
+}
+
+/* // TODO
+还能优化的点 TCP慢启动，先上传一个初始区块，比如10KB，根据上传成功时间，决定下一个区块是20K，还是50K，还是5K
+在下一个一样的逻辑，可能变成100K，200K，或者2K */
+/**
+ * 请求并发控制
+ * 上传可能报错，报错之后，进度条变红，开始重试，一个切片重试失败三次，整体全部终止
+ */
+const resquestControl = async (chunks, limit = 3) => {
+  // limit 并发数
+  // [task1,task2,task3] 完成一个task1 则去掉task1 ，加入task4 => [task2,task3,task4]
+  return new Promise((resolve, reject) => {
+    const len = chunks.length
+    let count = 0
+    let isStop = false
+
+    const start = async () => {
+      if (isStop) {
+        return
+      }
+      const task = chunks.shift()
+      if (task) {
+        const { formData, index } = task
+        try {
+          await uploadBigRequest(formData, index)
+          if (count === len - 1) {
+            // 最后一个任务
+            resolve()
+          } else {
+            count++
+            start() // 启动下一个任务
+          }
+        } catch (error) {
+          state.chunks[index].progress = -1
+          if (task.error < 3) {
+            task.error++
+            chunks.unshift(task) // 报错则将该任务再此加回头部继续重试请求
+            start()
+          } else {
+            // 错误三次 直接在调用start时停止
+            isStop = true
+            reject()
+          }
+        }
+      }
+    }
+
+    while (limit > 0) {
+      // 并发启动limit个任务
+      // 模拟一下延迟
+      setTimeout(() => {
+        start()
+      }, Math.random() * 2000)
+      limit -= 1
+    }
+  })
 }
 
 // 4.合并切片
@@ -417,6 +473,20 @@ const isImage = async (file) => {
   return (await isGif(file)) || (await isPng(file)) || (await isJpg(file))
 }
 
+// 大文件上传请求
+const uploadBigRequest = async (formData, i) => {
+  return axios({
+    method: 'post',
+    url: '/file/bigUpload',
+    data: formData,
+    onUploadProgress: (progress) => {
+      // 不是整体的进度条了，而是每个区块有自己的进度条，整体的进度条需要计算
+      state.chunks[i].progress = Number(
+        ((progress.loaded / progress.total) * 100).toFixed(2)
+      )
+    },
+  })
+}
 // 普通文件上传测试
 const handleBtn = () => {
   const { file } = state
