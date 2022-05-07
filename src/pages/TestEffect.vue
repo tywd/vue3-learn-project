@@ -12,6 +12,7 @@
     <h1><button @click="add">+</button>{{ num.currentNum }}</h1>
     <button @click="testStop">testStop</button>
     <button @click="testRunner">testRunner</button>
+    <div>progress: {{progress}}</div>
   </div>
 </template>
 
@@ -23,27 +24,43 @@ let obj = reactive({
   count: 1,
 })
 let double = computed(() => obj.count * 2)
-const num = reactive({ currentNum: 0 })
+let progress = computed(() => {
+  
+  let p = num.chunks.map((v, i) => v.a * (i+1)).reduce((acc, cur) => acc + cur, 0)
+  return p
+})
+const num = reactive({ currentNum: 0, chunks: [] })
 
-const runner = effect(
+const runner = () => {}
+effect(
   () => {
     // 一开始就调用
-    console.log('effect ', num.currentNum)
-  },
-  {
-    scheduler: () => {
-      // 一开始不会被调用，值变化后才会调用该方法而不调用上面方法，如果未设置则一直执行上面方法
-      console.log('effect-scheduler ', num.currentNum)
-    },
-    /* onStop: () => {
-      // 被stop后可调用一次
-      console.log('effect 已被 stop')
-    }, */
+    // console.log('effect ', num.currentNum)
+    console.log('effect ', num.chunks)
   }
+  // {
+  //   scheduler: () => {
+  //     // 一开始不会被调用，值变化后才会调用该方法而不调用上面方法，如果未设置则一直执行上面方法
+  //     console.log('effect-scheduler ', num.currentNum)
+  //   },
+  //   onStop: () => {
+  //     // 被stop后可调用一次
+  //     console.log('effect 已被 stop')
+  //   },
+  // }
 )
 
 function add() {
   num.currentNum++
+  let arr = [
+    { a: 1, b: 2 },
+    { a: 1, b: 2, c: 3 },
+    { a: 1, b: 2, c: 3, d: 4 },
+  ]
+  /* arr.forEach((e,i)=>{
+    num.chunks.push(e)
+  }) */
+  num.chunks = arr
 }
 
 function testStop() {

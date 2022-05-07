@@ -39,14 +39,14 @@
       比如10各方块 4*4
       9 3*3
       100 10*10 -->
-  <!-- <pre>{{chunks}}</pre> -->
+  <!-- <pre>{{state.chunks}}</pre> -->
   <div
     class="cube-container"
     :style="{width:cubeWidth+'px'}"
   >
     <div
       class="cube"
-      v-for="chunk in chunks"
+      v-for="chunk in state.chunks"
       :key="chunk.name"
     >
       <div
@@ -79,31 +79,36 @@ import { postUploadFile, checkFile, postUploadBigFile, mergeFile } from 'api/'
 import axios from 'axios'
 axios.defaults.baseURL = `http://localhost:9111`
 let worker = null
-const SIZE = 1024 * 1024 // 切片的大小1M
-let chunks = reactive([])
+const SIZE = 1024 * 50 // 切片的大小1M
 const state = reactive({
   file: null,
-  // uploadProgress:0,
   hashProgress: 0,
+  chunks: [],
 })
 const drag = ref(null)
 const { proxy } = getCurrentInstance()
 
 // 上传进度
 let uploadProgress = computed(() => {
-  if (!state.file || chunks.length) return 0
-  const loaded = chunks
+  const { chunks, file } = state
+  if (!file || chunks.length === 0) return 0
+  let loaded = chunks
     .map((item) => item.chunk.size * item.progress)
     .reduce((acc, cur) => acc + cur, 0)
-  return parseInt(((loaded * 100) / state.file.size).toFixed(2))
+  let progress = Number(((loaded) / file.size).toFixed(2))
+  return progress
 })
 
 let cubeWidth = computed(() => {
-  return Math.ceil(Math.sqrt(chunks.length)) * 20
+  return Math.ceil(Math.sqrt(state.chunks.length)) * 20
+})
+
+effect(() => {
+  console.log('effect: ', state.chunks)
 })
 
 watchEffect(() => {
-  console.log('watchEffect: ', chunks)
+  console.log('watchEffect: ', state.chunks)
 })
 
 // 监听input type file
@@ -174,7 +179,7 @@ const uploadFile = async () => {
     return proxy.$message.info('秒传成功')
   } */
 
-  /* let chunksMap = fileChunks.map((chunk, index) => {
+  let chunksMap = fileChunks.map((chunk, index) => {
     const name = hash + '-' + index
     return {
       hash,
@@ -185,9 +190,9 @@ const uploadFile = async () => {
       // progress: uploadedList.indexOf(name) > -1 ? 100 : 0,
     }
   })
-  chunks = chunksMap */
+  state.chunks = chunksMap
 
-  fileChunks.forEach((chunk, index) => {
+  /* fileChunks.forEach((chunk, index) => {
     const name = hash + '-' + index
     let data = {
       hash,
@@ -197,8 +202,8 @@ const uploadFile = async () => {
       // 设置进度条，已经上传的，设为100
       // progress: uploadedList.indexOf(name) > -1 ? 100 : 0,
     }
-    chunks.push(data)
-  })
+    state.chunks.push(data)
+  }) */
   await uploadFileChunks()
 }
 
@@ -323,7 +328,7 @@ const calculateHashSample = async () => {
 // 3.上传切片
 const uploadFileChunks = async () => {
   // 每个切片都为FormData
-  const requests = chunks
+  const requests = state.chunks
     .map((chunk, index) => {
       let formData = new FormData()
       formData.append('hash', chunk.hash)
@@ -338,7 +343,7 @@ const uploadFileChunks = async () => {
         data: formData,
         onUploadProgress: (progress) => {
           // 不是整体的进度条了，而是每个区块有自己的进度条，整体的进度条需要计算
-          chunks[index].progress = Number(
+          state.chunks[index].progress = Number(
             ((progress.loaded / progress.total) * 100).toFixed(2)
           )
         },
@@ -346,9 +351,9 @@ const uploadFileChunks = async () => {
     )
 
   await Promise.all(requests)
-  const { data, code, msg } = await mergeFileChunks()
-  if (code === 0) {
-    proxy.$message.info(msg)
+  const { data } = await mergeFileChunks()
+  if (data.code === 0) {
+    proxy.$message.info(data.msg)
   } else {
     proxy.$message.error('出错')
   }
