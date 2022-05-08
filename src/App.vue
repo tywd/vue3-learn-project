@@ -6,7 +6,7 @@ import { message } from 'ant-design-vue'
 </script>
 
 <template>
-  <div>
+  <div class="app-con">
     <!-- <img alt="Vue logo" src="./assets/logo.png" /> -->
     <!-- <HelloWorld msg="Hello Vue 3 + Vite TYWD" /> -->
     <router-link to="/">首页</router-link> |
@@ -31,6 +31,9 @@ import { message } from 'ant-design-vue'
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  /* margin-top: 60px; */
+}
+.app-con{
+  line-height: 30px;
 }
 </style>

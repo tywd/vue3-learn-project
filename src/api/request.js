@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { message } from 'ant-design-vue'
 const LOCALURL911 = 'http://localhost:9111/'
 const LOCALURL = '/api'
 const instance = axios.create({
@@ -116,8 +117,19 @@ class Request {
         method: type,
         ...subData,
       }).then(response => {
-        resolve(response)
+        const {
+          code,
+          data,
+          msg
+        } = response
+        if (code === 0) {
+          resolve(data)
+        } else {
+          reject(msg)
+          message.error(msg || '请求出错')
+        }
       }).catch(error => {
+        message.error(error || '请求出错')
         reject(error)
       })
     })

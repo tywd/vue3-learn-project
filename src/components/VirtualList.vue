@@ -1,15 +1,6 @@
 <template>
-  <h1>这是商品列表页</h1>
   <div class="list">
-    <VirtualList
-      :listData="state.goodsList"
-      :size="300"
-    />
-    <!-- <div
-      class="infinite-list-phantom"
-      :style="{ height: listHeight + 'px' }"
-    ></div> -->
-    <!-- <div class="list-con">
+    <div class="list-con">
       <div
         class="list-item"
         v-for="item in state.goodsList"
@@ -27,27 +18,68 @@
           <main class="list-main">{{item.price}}</main>
         </div>
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, effect, toRefs, onMounted } from 'vue'
-import { goodsQuery } from 'api/'
-import VirtualList from 'components/VirtualList.vue'
+import { ref, reactive, computed, effect, toRefs, onMounted, watch } from 'vue'
 import defaultImg from '@/assets/gouku.jpg'
+/* export default {
+  props: {
+    listData: {
+      type: Array,
+      default: [],
+    },
+  },
+  setup(_, { root, emit }) {
+    const state = reactive({
+      page: 1,
+      size: 10,
+      totalSize: 0,
+      goodsList: computed(() => _.listData),
+    })
+    watch(
+      () => state.goodsList,
+      (val, oldVal) => {
+        console.log('val: ', val)
+      }
+    )
+    const defaultImgError = (e) => {
+      e.target.src = defaultImg
+    }
+    //列表总高度
+    // let listHeight = computed(() => {
+    //   return this.listData.length * this.itemSize
+    // })
+    onMounted(() => {
+      console.log('state.goodsList: ', state.goodsList)
+    })
+
+    return {
+      defaultImgError,
+      ...toRefs(state),
+    }
+  },
+} */
+const props = defineProps({
+  listData: {
+    type: Array,
+    default: [],
+  },
+})
 const state = reactive({
   page: 1,
   size: 10,
   totalSize: 0,
-  goodsList: [],
+  goodsList: computed(() => props.listData),
 })
-const getList = () => {
-  goodsQuery({ page: 1, size: 3470 }).then((res) => {
-    state.goodsList = res.list
-    state.totalSize = res.totalSize
-  })
-}
+watch(
+  () => state.goodsList,
+  (val, oldVal) => {
+    console.log('val: ', val)
+  }
+)
 const defaultImgError = (e) => {
   e.target.src = defaultImg
 }
@@ -56,7 +88,7 @@ const defaultImgError = (e) => {
 //   return this.listData.length * this.itemSize
 // })
 onMounted(() => {
-  getList()
+  console.log('state.goodsList: ', state.goodsList)
 })
 </script>
 
