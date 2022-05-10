@@ -205,6 +205,7 @@ const uploadFile = async () => {
   }
 }
 
+// 检查是否存在文件 或 切片
 const checkfile = async (hash, ext) => {
   return await axios({
     method: 'get',

@@ -1,3 +1,11 @@
+<!--
+ * @Author: tywd
+ * @Date: 2022-05-05 22:50:40
+ * @LastEditors: tywd
+ * @LastEditTime: 2022-05-10 11:53:28
+ * @FilePath: /vue3-learn-project/src/pages/GoodsList.vue
+ * @Description: Do not edit
+-->
 <template>
   <h1>这是商品列表页</h1>
   <div class="list">
@@ -5,10 +13,6 @@
       :listData="state.goodsList"
       :size="300"
     />
-    <!-- <div
-      class="infinite-list-phantom"
-      :style="{ height: listHeight + 'px' }"
-    ></div> -->
     <!-- <div class="list-con">
       <div
         class="list-item"
@@ -22,7 +26,6 @@
           >
         </div>
         <div class="list-right">
-          <header class="list-head">{{item.title}}</header>
           <header class="list-head">{{item.title}}</header>
           <main class="list-main">{{item.price}}</main>
         </div>
