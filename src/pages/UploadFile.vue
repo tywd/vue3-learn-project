@@ -73,12 +73,10 @@ import {
   watchEffect,
 } from 'vue'
 import { isImage } from 'utils'
-import { postUploadFile, checkFile, postUploadBigFile, mergeFile } from 'api'
-import axios from 'axios'
-axios.defaults.baseURL = `http://localhost:9111`
+import { postUploadFile, checkFile, postUploadBigFile, mergeFile } from '@/api'
 let worker = null
-const SIZE = 1024 * 100 // 切片的大小 100k
-// const SIZE = 1024 * 1024 * 2 // 切片大小2M
+// const SIZE = 1024 * 100 // 切片的大小 100k
+const SIZE = 1024 * 1024 * 2 // 切片大小2M
 const state = reactive({
   file: null, // 取到的要上传的文件
   hashProgress: 0, // 切片hash计算进度条
@@ -91,7 +89,7 @@ const { proxy } = getCurrentInstance()
 // 上传进度
 let uploadProgress = computed(() => {
   const { chunks, file, uploaded } = state
-  if (state.uploaded) return 100 // 已上传则直接返回上传进度完成
+  if (uploaded) return 100 // 已上传则直接返回上传进度完成
   if (!file || chunks.length === 0) return 0
   let loaded = chunks
     .map((item) => item.chunk.size * item.progress)
@@ -100,6 +98,7 @@ let uploadProgress = computed(() => {
   return progress
 })
 
+// 计算单块 hash计算进度条方块的宽度
 let cubeWidth = computed(() => {
   return Math.ceil(Math.sqrt(state.chunks.length)) * 20
 })
@@ -152,7 +151,7 @@ const bindDragEvents = () => {
 const uploadFile = async () => {
   let { file } = state
   if (!file) return
-  // 0.文件指纹校验 -----------------------
+  // 0.文件指纹校验------解决file.name可能被篡改的问题-------------------------
   /* if (!(await isImage(file))) {
     return proxy.$message.error('文件格式不对')
   } else {
@@ -163,7 +162,7 @@ const uploadFile = async () => {
   let hash = null
   try {
     // 切片hash计算的三种方式
-    hash = await calculateHashSample() // 1.创建切片----此为抽样hash切片-------------------------------
+    hash = await calculateHashSample() // 1.创建切片----此为抽样hash切片------专为大文件设计-------------------------
     console.log('hash: ', hash)
     // const hash1 = await calculateHashIdle(fileChunks)
     // console.log('hash1: ', hash1)
@@ -171,10 +170,11 @@ const uploadFile = async () => {
     // console.log('hash2: ', hash2)
     state.hash = hash
   } catch (error) {
-    alert(error)
+    proxy.$message.error(JSON.stringify(error))
   }
 
   // hash计算后可以问一下后端，文件是否上传过，如果不存在，就看是否有存在的切片
+  // TODO file.name.split('.').pop() 参考上面 isImage()，应该用指纹校验后return文件后缀名，不应取 file.name 的
   const { uploaded, uploadedList } = await checkfile(
     state.hash,
     file.name.split('.').pop()
@@ -193,7 +193,7 @@ const uploadFile = async () => {
       index,
       chunk: chunk.file,
       // 设置进度条，已经上传的，设为100
-      progress: uploadedList.indexOf(name) > -1 ? 100 : 0,
+      progress: uploadedList && uploadedList.indexOf(name) > -1 ? 100 : 0,
     }
   })
   // 2.切片hash计算-----------------------------------END
@@ -259,7 +259,7 @@ const calculateHashIdle = async (chunks) => {
       })
     }
     const workLoop = async (deadline) => {
-      // timeRemaining获取当前帧的剩余时间
+      // timeRemaining获取当前帧的剩余时间 或者 didTimeout 指定时间到了 返回true
       while (
         count < chunks.length &&
         (deadline.timeRemaining() > 1 || deadline.didTimeout)

@@ -48,7 +48,7 @@ const props = defineProps({
   //每项高度
   itemSize: {
     type: Number,
-    default: 100,
+    default: 80,
   },
 })
 const listContanier = ref(null)
@@ -61,7 +61,7 @@ const state = reactive({
   startOffset: 0, //偏移量
   start: 0, //起始索引
   end: 4, //结束索引
-  visibleCount: computed(() => Math.ceil(state.screenHeight / props.itemSize)), //可显示的列表项数
+  visibleCount: computed(() => Math.ceil(state.screenHeight / props.itemSize)), //可显示的列表项数 向上取整
 })
 const defaultImgError = (e) => {
   e.target.src = defaultImg
@@ -81,13 +81,15 @@ let trueData = computed(() => {
 const scrollEvent = () => {
   //当前滚动位置
   let scrollTop = listContanier.value.scrollTop
+  console.log('scrollTop: ', scrollTop);
   //此时的开始索引
   state.start = Math.floor(scrollTop / props.itemSize)
   //此时的结束索引
   // let visibleCount = Math.ceil(state.screenHeight / props.itemSize)
   state.end = state.start + state.visibleCount
   //此时的偏移量
-  state.startOffset = scrollTop - (scrollTop % props.itemSize)
+  // state.startOffset = scrollTop - (scrollTop % props.itemSize)
+  state.startOffset = scrollTop
 }
 
 onMounted(() => {
@@ -123,7 +125,7 @@ onMounted(() => {
 
     .list-item {
       width: inherit;
-      height: 100px;
+      // height: 100;
       @include myflex($align: center, $justify: start);
       box-sizing: border-box;
       padding: 10px;
