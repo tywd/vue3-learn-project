@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router/index'
 import store from './store/index'
-import { message,notification } from 'ant-design-vue'
+import { message, notification } from 'ant-design-vue'
 // 导⼊图标库
 import * as Icons from "@ant-design/icons-vue"
 

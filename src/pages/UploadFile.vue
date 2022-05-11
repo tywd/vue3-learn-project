@@ -32,12 +32,9 @@
   </div>
   <!-- chunk.progress 
       progress<0 报错 显示红色
-      == 100 成功
-      别的数字 方块高度显示 -->
-  <!-- 尽可能让方块看起来仕真方形
-      比如10各方块 4*4
-      9 3*3
-      100 10*10 -->
+      == 100 成功 显示绿色
+      别的数字 方块高度显示 显示蓝色-->
+  <!-- 尽可能让方块看起来是正方形 比如10各方块 16*16 -->
   <!-- <pre>{{state.chunks}}</pre> -->
   <p>每一片的上传进度</p>
   <div
@@ -75,22 +72,26 @@ import {
   getCurrentInstance,
   watchEffect,
 } from 'vue'
-import { postUploadFile, checkFile, postUploadBigFile, mergeFile } from 'api/'
+import { isImage } from 'utils'
+import { postUploadFile, checkFile, postUploadBigFile, mergeFile } from 'api'
 import axios from 'axios'
 axios.defaults.baseURL = `http://localhost:9111`
 let worker = null
-const SIZE = 1024 * 50 // 切片的大小1M
+const SIZE = 1024 * 100 // 切片的大小 100k
+// const SIZE = 1024 * 1024 * 2 // 切片大小2M
 const state = reactive({
-  file: null,
-  hashProgress: 0,
-  chunks: [],
+  file: null, // 取到的要上传的文件
+  hashProgress: 0, // 切片hash计算进度条
+  chunks: [], // 存储切片
+  uploaded: false, // 用于判断是否秒传成功，已存在文件
 })
 const drag = ref(null)
 const { proxy } = getCurrentInstance()
 
 // 上传进度
 let uploadProgress = computed(() => {
-  const { chunks, file } = state
+  const { chunks, file, uploaded } = state
+  if (state.uploaded) return 100 // 已上传则直接返回上传进度完成
   if (!file || chunks.length === 0) return 0
   let loaded = chunks
     .map((item) => item.chunk.size * item.progress)
@@ -104,11 +105,13 @@ let cubeWidth = computed(() => {
 })
 
 effect(() => {
-  console.log('effect: ', state.chunks)
+  console.log('effect-chunks: ', state.chunks)
+  console.log('effect-state.uploaded: ', state.uploaded)
 })
 
 watchEffect(() => {
-  console.log('watchEffect: ', state.chunks)
+  console.log('watchEffect-chunks: ', state.chunks)
+  console.log('watchEffect-state.uploaded: ', state.uploaded)
 })
 
 // 监听input type file
@@ -125,7 +128,8 @@ const getFormData = (file) => {
   return formData
 }
 
-const bindEvents = () => {
+// 拖拽事件绑定
+const bindDragEvents = () => {
   drag.value.addEventListener('dragover', (e) => {
     drag.value.style.borderColor = 'red'
     e.preventDefault()
@@ -148,16 +152,18 @@ const bindEvents = () => {
 const uploadFile = async () => {
   let { file } = state
   if (!file) return
+  // 0.文件指纹校验 -----------------------
   /* if (!(await isImage(file))) {
-    console.log('文件格式不对')
+    return proxy.$message.error('文件格式不对')
   } else {
     console.log('格式正确')
   } */
-  const fileChunks = createFileChunks(file) // 1.创建切片-----------------------------------
-  // 2.切片hash计算-----------------------------------
+  const fileChunks = createFileChunks(file) // 1.创建切片--------calculateHashIdle 与 calculateHashWorker使用-------------------------
+  // 2.切片hash计算-----------------------------------START
   let hash = null
   try {
-    hash = await calculateHashSample()
+    // 切片hash计算的三种方式
+    hash = await calculateHashSample() // 1.创建切片----此为抽样hash切片-------------------------------
     console.log('hash: ', hash)
     // const hash1 = await calculateHashIdle(fileChunks)
     // console.log('hash1: ', hash1)
@@ -169,13 +175,13 @@ const uploadFile = async () => {
   }
 
   // hash计算后可以问一下后端，文件是否上传过，如果不存在，就看是否有存在的切片
-  const {
-    data: {
-      data: { uploaded, uploadedList },
-    },
-  } = await checkfile(state.hash, file.name.split('.').pop())
+  const { uploaded, uploadedList } = await checkfile(
+    state.hash,
+    file.name.split('.').pop()
+  )
   if (uploaded) {
     // 文件已存在 则秒传
+    state.uploaded = uploaded
     return proxy.$message.info('秒传成功')
   }
 
@@ -195,26 +201,8 @@ const uploadFile = async () => {
   // 3.切片上传 - 断点续传
   await uploadFileChunks(uploadedList)
   // 4.合并切片
-  const {
-    data: { code, msg },
-  } = await mergeFileChunks()
-  if (code === 0) {
-    proxy.$message.info(msg)
-  } else {
-    proxy.$message.error('出错')
-  }
-}
-
-// 检查是否存在文件 或 切片
-const checkfile = async (hash, ext) => {
-  return await axios({
-    method: 'get',
-    url: '/file/check',
-    params: {
-      hash,
-      ext,
-    },
-  })
+  await mergeFileChunks()
+  proxy.$message.info('合并成功')
 }
 
 // 1.创建切片
@@ -306,7 +294,7 @@ const calculateHashSample = async () => {
     const reader = new FileReader()
     const file = state.file
     const size = file.size
-    const offset = 2 * 1024 * 1024 // 每2M切一片
+    const offset = SIZE // 抽样hash通常用于计算文件过大，比如每2M切一片 2 * 1024 * 1024
     // 第一个2M，最后一个区块数据全要
     let fileChunks = [file.slice(0, offset)]
     let cur = offset
@@ -408,6 +396,7 @@ const resquestControl = async (chunks, limit = 3) => {
     while (limit > 0) {
       // 并发启动limit个任务
       // 模拟一下延迟
+      console.log('tywd')
       setTimeout(() => {
         start()
       }, Math.random() * 2000)
@@ -416,69 +405,24 @@ const resquestControl = async (chunks, limit = 3) => {
   })
 }
 
-// 4.合并切片
+// 4.合并切片 请求：合并
 const mergeFileChunks = async () => {
   const { file, hash } = state
-  return await axios({
-    method: 'get',
-    url: '/file/merge',
-    params: {
-      ext: file.name.split('.').pop(),
-      size: SIZE,
-      hash: hash,
-    },
+  return await mergeFile({
+    ext: file.name.split('.').pop(),
+    size: SIZE,
+    hash: hash,
   })
 }
 
-// 将我们需要的文件的16进制的某段读出来
-const blobToString = async (blob) => {
-  return new Promise((resolve) => {
-    const reader = new FileReader()
-    reader.onload = function() {
-      const ret = reader.result
-        .split('')
-        .map((v) => v.charCodeAt()) // 转为ASCII码
-        .map((v) => v.toString(16).toUpperCase()) // 转为 16进制
-        // .map(v=>v.padStart(2,'0'))
-        .join(' ')
-      resolve(ret)
-      // const ret = reader.
-    }
-    reader.readAsBinaryString(blob) // readAsBinaryString 方法会读取指定的 Blob 或 File 对象，当读取完成的时候，readyState  会变成DONE（已完成），并触发 loadend (en-US) 事件，同时 result 属性将包含所读取文件原始二进制格式。
-  })
-}
-const isGif = async (file) => {
-  // GIF89a 和GIF87a
-  // 前面6个16进制，'47 49 46 38 39 61' or '47 49 46 38 37 61'
-  // 16进制的转换
-  const ret = await blobToString(file.slice(0, 6))
-  const isGif = ret == '47 49 46 38 39 61' || ret == '47 49 46 38 37 61'
-  return isGif
-}
-const isPng = async (file) => {
-  const ret = await blobToString(file.slice(0, 8))
-  console.log('ret: ', ret)
-  const ispng = ret == '89 50 4E 47 0D 0A 1A 0A'
-  return ispng
-}
-const isJpg = async (file) => {
-  const len = file.size
-  const start = await blobToString(file.slice(0, 2))
-  const tail = await blobToString(file.slice(-2, len))
-  const isjpg = start == 'FF D8' && tail == 'FF D9'
-  return isjpg
-}
-const isImage = async (file) => {
-  // 通过文件流来判定
-  // 先判定是不是gif
-  return (await isGif(file)) || (await isPng(file)) || (await isJpg(file))
+// 请求：检查是否存在文件 或 切片
+const checkfile = async (hash, ext) => {
+  return await checkFile({ hash, ext })
 }
 
-// 大文件上传请求
+// 请求：大文件上传
 const uploadBigRequest = async (formData, i) => {
-  return axios({
-    method: 'post',
-    url: '/file/bigUpload',
+  return await postUploadBigFile({
     data: formData,
     onUploadProgress: (progress) => {
       // 不是整体的进度条了，而是每个区块有自己的进度条，整体的进度条需要计算
@@ -488,27 +432,18 @@ const uploadBigRequest = async (formData, i) => {
     },
   })
 }
-// 普通文件上传测试
+
+// 请求：普通文件上传测试
 const handleBtn = () => {
   const { file } = state
   if (!file) return
   const formData = getFormData(file)
-  /* postUploadFile({
+  postUploadFile({
     formData,
   })
     .then(function(response) {
       console.log('handleBtn: ', response)
-    })
-    .catch(function(error) {
-      console.log('error: ', error)
-    }) */
-  axios({
-    method: 'post',
-    url: '/file/upload',
-    data: formData,
-  })
-    .then(function(response) {
-      console.log('handleFileUpload: ', response)
+      proxy.$message.info('上传成功')
     })
     .catch(function(error) {
       console.log('error: ', error)
@@ -516,7 +451,7 @@ const handleBtn = () => {
 }
 
 onMounted(() => {
-  bindEvents()
+  bindDragEvents()
 })
 </script>
 

@@ -30,8 +30,8 @@
 
 <script setup>
 import { ref, computed, watchEffect } from 'vue'
-// import { useMouse } from "../utils/mouse";
-import { useFavicon, useMouse } from '../utils/index'
+// import { useMouse } from "utils";
+import { useFavicon, useMouse } from 'utils'
 let { favicon } = useFavicon()
 function loading() {
   favicon.value = '/icon-more@3x.png'

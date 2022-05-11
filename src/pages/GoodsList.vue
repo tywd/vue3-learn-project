@@ -36,8 +36,9 @@
 
 <script setup>
 import { ref, reactive, computed, effect, toRefs, onMounted } from 'vue'
-import { goodsQuery } from 'api/'
+import { goodsQuery } from 'api'
 import VirtualList from 'components/VirtualList.vue'
+import VirtualList2 from 'components/VirtualList.vue'
 import defaultImg from '@/assets/gouku.jpg'
 const state = reactive({
   page: 1,

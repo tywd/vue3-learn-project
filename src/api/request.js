@@ -1,5 +1,7 @@
 import axios from 'axios'
-import { message } from 'ant-design-vue'
+import {
+  message
+} from 'ant-design-vue'
 const LOCALURL911 = 'http://localhost:9111/'
 const LOCALURL = '/api'
 const instance = axios.create({
@@ -12,7 +14,7 @@ const instance = axios.create({
 });
 // httpService.defaults.headers.common['Authorization'] = 'Bearer' + localStorage.getItem('token')
 // post请求提交的是json格式的数据，则content-type如下
-instance.defaults.headers.post['content-type'] = 'application/json charset=utf-8'
+// instance.defaults.headers.post['content-type'] = 'application/json; charset=utf-8'
 
 /**
  * 设置拦截器 request请求拦截
@@ -96,20 +98,21 @@ instance.interceptors.response.use(response => {
 })
 
 class Request {
-  constructor() {
-
-  }
+  constructor() {}
   request(params) {
-    console.log('params: ', params);
     const {
       url,
       type,
-      data
+      data,
+      onUploadProgress
     } = params;
-    const subData = type === 'post' ? {
-      data
+    const subData = type === 'post' ? (onUploadProgress ? {
+      data,
+      onUploadProgress
     } : {
-      params: data
+      data,
+    }) : {
+      params: data,
     }
     return new Promise((resolve, reject) => {
       instance({
@@ -134,91 +137,6 @@ class Request {
       })
     })
   }
-
-  uploadRequest(params) {
-    const {
-      url,
-      type,
-      data
-    } = params;
-    axios.defaults.baseURL = LOCALURL911
-    axios({
-        url,
-        method: type,
-        data,
-      })
-      .then(function (response) {
-        console.log('handleFileUpload: ', response)
-      })
-      .catch(function (error) {
-        console.log('error: ', error)
-      })
-  }
 }
 
 export default new Request()
-
-// /* *
-//  *  get请求
-//  *  url:请求地址
-//  *  params:参数
-//  */
-// const get = (url, params = {}) => {
-//   return new Promise((resolve, reject) => {
-//     instance({
-//       url: url,
-//       method: 'get',
-//       params: params
-//     }).then(response => {
-//       resolve(response)
-//     }).catch(error => {
-//       reject(error)
-//     })
-//   })
-// }
-
-// /* *
-//  *  post请求
-//  *  url:请求地址
-//  *  params:参数
-//  */
-// const post = (url, params = {}) => {
-//   return new Promise((resolve, reject) => {
-//     instance({
-//       url: url,
-//       method: 'post',
-//       data: params
-//     }).then(response => {
-//       resolve(response)
-//     }).catch(error => {
-//       reject(error)
-//     })
-//   })
-// }
-
-// /**
-//  *  文件上传
-//  *  url:请求地址
-//  *  params:参数
-//  */
-// const fileUpload = (url, params = {}) => {
-//   return new Promise((resolve, reject) => {
-//     instance({
-//       url: url,
-//       method: 'post',
-//       data: params,
-//       headers: {
-//         'Content-Type': 'multipart/form-data'
-//       }
-//     }).then(response => {
-//       resolve(response)
-//     }).catch(error => {
-//       reject(error)
-//     })
-//   })
-// }
-// export default {
-//   get,
-//   post,
-//   fileUpload
-// }

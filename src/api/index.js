@@ -1,49 +1,50 @@
+import axios from 'axios'
 import request from './request';
 
 // 文件上传
 const postUploadFile = function (params) {
   return request.request({
-      type: 'post',
-      url: '/file/upload',
-      data: params.formData,
-      isUpload: true,
-    });
+    type: 'post',
+    url: '/file/upload',
+    data: params.formData,
+  });
 }
 
-// 校验文件是否存在或者上传了多少
-const checkFile = function () {
+// 校验文件是否存在或者上传了多少切片
+const checkFile = function (data) {
   return request.request({
-      type: 'post',
-      url: '/file/checkfile',
-    });
+    type: 'get',
+    url: '/file/check',
+    data
+  });
 }
 
 // 大文件切片上传
-const postUploadBigFile = function (params, xhr) {
-  return request.uploadRequest({
-      type: 'post',
-      url: '/file/bigUpload',
-      data: params,
-      isUpload: true,
-      // xhr: xhr.onUploadProgress
-    });
+const postUploadBigFile = function ({data, onUploadProgress}) {
+  return request.request({
+    type: 'post',
+    url: '/file/bigUpload',
+    data,
+    onUploadProgress,
+  });
 }
 
 // 合并切片文件
-const mergeFile = function () {
+const mergeFile = function (data) {
   return request.request({
-      type: 'post',
-      url: '/file/mergefile',
-    });
+    type: 'get',
+    url: '/file/merge',
+    data
+  });
 }
 
 // 查询商品列表
 const goodsQuery = function (data) {
   return request.request({
-      type: 'get',
-      url: '/goods/queryAll',
-      data
-    });
+    type: 'get',
+    url: '/goods/queryAll',
+    data
+  });
 }
 
 export {

@@ -37,7 +37,7 @@
 
 <script setup>
 import { ref, computed, reactive } from 'vue'
-import { useMouse } from '../utils/mouse'
+import { useMouse } from 'utils'
 let { x, y } = useMouse()
 /* let title = ref("");
 let todos = ref([{ title: "学习Vue", done: false }]);
