@@ -46,7 +46,6 @@ onMounted(() => {
 .goods-list-container {
   margin: 0 auto;
   width: 350px;
-  height: 500px;
   overflow-y: auto;
 }
 </style>

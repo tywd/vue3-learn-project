@@ -96,6 +96,32 @@ const isImage = async (file) => {
   return (await isGif(file)) || (await isPng(file)) || (await isJpg(file))
 }
 
+// 防抖
+const debounce = (fn, delay = 300) => {
+  let timer = 0;
+  return (...args) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn.call(this, ...args);
+    }, delay);
+  }
+}
+
+// 节流
+const throttle = (fn, delay=300) => {
+  let last = 0;
+  return (...args) => {
+    if (Date.now() - last > delay) {
+      last = Date.now()
+      setTimeout(() => {
+        fn.call(this, ...args);
+      }, delay);
+    }
+  }
+}
+
 
 export {
   useFavicon,
@@ -104,5 +130,7 @@ export {
   isGif,
   isPng,
   isJpg,
-  isImage
+  isImage,
+  debounce,
+  throttle
 }

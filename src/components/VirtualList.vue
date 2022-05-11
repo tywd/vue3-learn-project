@@ -3,6 +3,7 @@
     class="list-con"
     ref="listContanier"
     @scroll="scrollEvent($event)"
+    :style="{ height: state.screenHeight + 'px'}"
   >
     <div
       class="list-phantom"
@@ -37,8 +38,9 @@
 <script setup>
 import { ref, reactive, computed, effect, toRefs, onMounted, watch } from 'vue'
 import defaultImg from '@/assets/gouku.jpg'
+import { debounce, throttle } from 'utils'
 
-// vue + script setup 语法糖写法 不需用export default 
+// vue + script setup 语法糖写法 不需用export default
 // 使用export default 需要在setup 包住 最后还需return 暴露出所有需要用的值和方法
 const props = defineProps({
   listData: {
@@ -57,11 +59,13 @@ const state = reactive({
   size: 10,
   totalSize: 0,
   goodsList: computed(() => props.listData),
-  screenHeight: 800, //可视区域高度
+  screenHeight: 600, //可视区域高度
   startOffset: 0, //偏移量
   start: 0, //起始索引
   end: 4, //结束索引
-  visibleCount: computed(() => Math.ceil(state.screenHeight / props.itemSize)), //可显示的列表项数 向上取整
+  visibleCount: computed(
+    () => Math.ceil(state.screenHeight / props.itemSize) + 50
+  ), //可显示的列表项数 向上取整，此处可+多几个前后预先渲染，不必等到滚动到了再渲染
 })
 const defaultImgError = (e) => {
   e.target.src = defaultImg
@@ -81,22 +85,20 @@ let trueData = computed(() => {
 const scrollEvent = () => {
   //当前滚动位置
   let scrollTop = listContanier.value.scrollTop
-  console.log('scrollTop: ', scrollTop);
+  console.log('scrollTop: ', scrollTop)
   //此时的开始索引
   state.start = Math.floor(scrollTop / props.itemSize)
   //此时的结束索引
   // let visibleCount = Math.ceil(state.screenHeight / props.itemSize)
   state.end = state.start + state.visibleCount
   //此时的偏移量
-  // state.startOffset = scrollTop - (scrollTop % props.itemSize)
-  state.startOffset = scrollTop
+  state.startOffset = scrollTop - (scrollTop % props.itemSize)
+  // state.startOffset = scrollTop // 使用此偏移量 滑动时列表会有莫名的轻微抖动
 }
 
 onMounted(() => {
   state.start = 0
   state.end = state.start + state.visibleCount
-  console.log('state.end: ', state.end)
-  console.log('trueData: ', trueData)
 })
 </script>
 
@@ -117,7 +119,6 @@ onMounted(() => {
   .list {
     margin: 0 auto;
     width: 350px;
-    height: 500px;
     left: 0;
     right: 0;
     top: 0;
