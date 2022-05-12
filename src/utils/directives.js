@@ -82,11 +82,19 @@ const vDebounceClick = {
 /**
  * name 长按事件
  * @type {*} 
- * description: binding.value 必须是一个 function，在function 里面 return一个 function(e) 可给该方法传参
+ * description: binding.value 必须是一个 function，在function 里面 return一个 (e)=>{} 可给该方法传参
+ *  使用  引入directive后，
+    <div  v-longpress="testLongPress(1)" ></div>
+    const testLongPress = (e) => {
+        return () => {
+            console.log('testLongPress: ', e, 1)
+        }
+    } 
+ * 如果 binding.value {fn:func,v:1} 也可在 binding.value.fn(binding.value.v) 将参数传回去给方法
  */
 const vLongpress = {
     mounted: function (el, binding) {
-        // console.log('binding: ', binding , typeof binding.value);
+        console.log('binding: ', binding , typeof binding.value);
         if (!binding.value) return message.error('长按指令v-longpress未传入binding.value')
         if (typeof binding.value !== 'function') {
             console.warn(`[longpress:] provided expression '${binding.value}' is not a function, but has to be `);

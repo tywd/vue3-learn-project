@@ -22,6 +22,12 @@
       src="../assets/gouku.jpg"
       alt=""
     >
+    <!-- <img
+      v-longpress="{fn:testLongPress,v:1}"
+      width="200"
+      src="../assets/gouku.jpg"
+      alt=""
+    > -->
     <br>
     <br>
     <div class="test-range">
@@ -94,7 +100,6 @@ export default {
       console.log('v-debounce: ', e)
     }
 
-    //
     const testLongPress = (e) => {
       return () => {
         console.log('testLongPress: ', e, 1)
