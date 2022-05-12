@@ -50,8 +50,6 @@ const routes = [
         name: 'UploadFile',
         component: UploadFile
     },
-    
-   
 ]
 
 const router = createRouter({

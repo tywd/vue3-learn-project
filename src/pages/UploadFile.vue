@@ -260,9 +260,10 @@ const calculateHashIdle = async (chunks) => {
     }
     const workLoop = async (deadline) => {
       // timeRemaining获取当前帧的剩余时间 或者 didTimeout 指定时间到了 返回true
+      //  || deadline.didTimeout 需要在  window.requestIdleCallback(workLoop, 3000) 指定时间，如3000 表示指定的时间是否过期。这意味着，如果回调函数由于指定时间过期而触发，过了3000ms 强制触发
       while (
         count < chunks.length &&
-        (deadline.timeRemaining() > 1 || deadline.didTimeout)
+        (deadline.timeRemaining() > 1)
       ) {
         // 空闲时间，且有任务
         await appendToSpark(chunks[count].file)
