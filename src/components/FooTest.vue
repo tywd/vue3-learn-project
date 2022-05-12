@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1><button @click="add">+</button>{{ count }}</h1>
+    <input type="text">
   </div>
 </template>
 
