@@ -8,7 +8,8 @@
     <!-- <div class="gong">🐓🐓🐓</div> -->
     <br>
     <!-- <Foo /> -->
-    <TestDirectives />
+    <!-- <TestDirectives /> -->
+    <router-link to="/test-request-cancel">TestRequestCancel</router-link>
   </div>
 </template>
 

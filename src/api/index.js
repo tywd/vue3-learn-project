@@ -1,5 +1,4 @@
-import axios from 'axios'
-import request from './request';
+import request from './interceptorsRequest';
 
 // 文件上传
 const postUploadFile = function (params) {

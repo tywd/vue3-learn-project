@@ -103,7 +103,7 @@ let cubeWidth = computed(() => {
   return Math.ceil(Math.sqrt(state.chunks.length)) * 20
 })
 
-effect(() => {
+/* effect(() => {
   console.log('effect-chunks: ', state.chunks)
   console.log('effect-state.uploaded: ', state.uploaded)
 })
@@ -111,7 +111,7 @@ effect(() => {
 watchEffect(() => {
   console.log('watchEffect-chunks: ', state.chunks)
   console.log('watchEffect-state.uploaded: ', state.uploaded)
-})
+}) */
 
 // 监听input type file
 const handleFileChange = (e) => {
@@ -207,7 +207,7 @@ const uploadFile = async () => {
 
 // 1.创建切片
 const createFileChunks = (file, size = SIZE) => {
-  console.log('file: ', file, typeof file)
+  // console.log('file: ', file, typeof file)
   // file.__proto__.__proto__ --> Blob
   // Blob.prototype.slice
   const fileChunks = [] // 存放每一片的数组
