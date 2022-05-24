@@ -6,8 +6,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watchEffect, effect } from 'vue'
-
+import { ref, reactive, computed, watchEffect, effect, onMounted } from 'vue'
+import { useRouter } from "vue-router";
+let router = useRouter();
 let str = ref('ty')
 let obj = reactive({
   count: 1,
@@ -28,6 +29,11 @@ effect(() => {
 watchEffect(() => {
   // console.log('watchEffec：', changeValue, num.currentNum)
   // console.log('watchEffect：', obj.count, double.value, str.value)
+})
+
+onMounted(() => {
+  console.log('route: ', router.currentRoute)
+  console.log('router: ', router)
 })
 
 function add() {
