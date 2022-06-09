@@ -439,17 +439,28 @@ npx husky-init && npm install
 // 执行下面命令会 将命令添加到钩子或创建新命令，请使用 husky add <file> [cmd]（不要忘记先运行 husky install）上面已经初始化过了。
 npx husky add .husky/pre-commit "npm test"
 ```
-之后根据我们 eslint 配置好的校验，故意给我们的文件做个错误示例，\
-看会不会 commit 时 自动执行 .husky/pre-commit 中写的指令 npm test 对我们的代码进行校验
+- 4. 开始测试
+根据我们 eslint 配置好的校验，故意给我们的文件做个错误示例，看会不会 commit 时 自动执行 .husky/pre-commit 中写的指令 npm test 对我们的代码进行校验
 
-- 4. Uninstall
+笔者特地给 某个文件的 双引号 改为 单引号，然后配置一个没有 --fix 自动修复的指令， 当执行了
+```js
+"scripts": {
+  "test": "npm run lint",
+  "lint:fix": "eslint --fix --ext .js,.vue src",
+  "lint": "eslint --ext .js,.vue src",
+},
+```
+当执行以下commit时
+```js
+git add .
+git commit -m "test husky pre-commit"
+```
+出现了报错 如下, 提示应该根据 eslintrc 配置好的使用 单引号 singlequote
+![image.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c857c0dedbcc48d1ba124cb95fdd7aeb~tplv-k3u1fbpfcp-watermark.image?)
+至此配置 husky 成功
+
+> PS： 出错后可以继续使用 `npm run lint:fix` 修复错误
+
+- 5. Uninstall(写在husky)
 `npm uninstall husky && git config --unset core.hooksPath`
 
-配置husky
-```js
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint" //"测试 + 代码规范"
-    }
-  }
-```

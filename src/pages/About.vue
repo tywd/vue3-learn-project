@@ -20,7 +20,7 @@ const num = reactive({ currentNum: 0 })
 let changeValue
 
 effect(() => {
-  changeValue = num.currentNum;
+  changeValue = num.currentNum
   console.log('effect ', changeValue, num.currentNum)
   console.log('effect ', obj.count, double.value, str.value)
   // console.log('effect ', obj.count, str.value)
