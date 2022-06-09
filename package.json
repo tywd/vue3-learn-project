@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "test": "npm run lint",
     "lint:fix": "eslint --fix --ext .js,.vue src",
-    "lint": "eslint --ext .js,.vue src",
+    "lint": "lint-staged",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -40,6 +40,7 @@
     "eslint-plugin-vue": "^9.1.0",
     "husky": "^8.0.0",
     "less": "^4.1.2",
+    "lint-staged": "^13.0.1",
     "node-sass": "^7.0.1",
     "qs": "^6.10.3",
     "sass": "^1.51.0",
@@ -52,5 +53,10 @@
     "vue-global-api": "^0.4.1",
     "vue-worker": "^1.2.1",
     "worker-loader": "^3.0.8"
+  },
+  "lint-staged": {
+    "*.{js,vue}": [
+      "eslint --ext .js,.vue src"
+    ]
   }
 }

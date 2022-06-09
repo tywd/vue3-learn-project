@@ -165,7 +165,7 @@ export default defineConfig({
 })
 ```
 
-# 项目一些基础配置规范
+# 前端工程化开发规范 editConfig+eslint+husky+lint-staged
 ## editorConfig 
 EditorConfig 有助于维护跨多个编辑器和IDE从事同一项目的多个开发人员的一致编码风格，EditorConfig项目由一种用于定义编码样式的文件格式和一组文本编辑器插件组成，这些文本编辑器插件使编辑器可以读取文件格式并遵循定义的样式，EditorConfig 文件易于阅读，并且可以与版本控制系统很好地协同工作。
 
@@ -309,7 +309,7 @@ module.exports = {
   }
 }
 ```
-### 安装vite-plugin-eslint
+### 2、安装vite-plugin-eslint
 `npm i -D vite-plugin-eslint`
 修改配置vite.config.js文件
 ```js
@@ -415,6 +415,7 @@ lint-staged用于只校验git暂存区的文件。
 
 这里要实现的功能是在git commit命令运行时先校验lint（包括eslint）是否通过，未通过则不予commit。
 
+### 1、husky
 husky 8.x 的使用参考 [官网 husky-usage](https://typicode.github.io/husky/#/?id=usage)
 - 1. 初始化
 ```js
@@ -464,3 +465,35 @@ git commit -m "test husky pre-commit"
 - 5. Uninstall(写在husky)
 `npm uninstall husky && git config --unset core.hooksPath`
 
+
+### 2、lint-staged
+前面说了 `lint-staged` 用于只校验git暂存区的文件。在代码提交之前，进行代码规则检查能够确保进入git库的代码都是符合代码规则的。但是整个项目上运行lint速度会很慢
+
+优点：lint-staged能够让lint只检测暂存区的文件，所以速度很快。
+
+lint-staged过滤文件采用glob模式。
+
+- 1. 安装 lint-staged
+`npm i -D lint-staged`
+
+- 2. 配置 lint-staged
+这里其实就是配置将我们上面配的 husky 执行 的lint 放到 lint-staged
+
+git commit时触发pre-commit钩子，运行lint-staged命令，对*.js等执行eslint命令。eslint要提前配置好。
+```js
+// package.json
+"scripts": {
+  "lint": "lint-staged", // 此处将之前的lint 改为 lint-stage的，将之前lint的指令放到 下面 lint-staged
+},
+"lint-staged": {
+  "*.{js,vue}": [
+      "eslint --ext .js,.vue src" // 执行eslint 校验
+    // "git add" // 也可以执行 eslint --fix 这样直接配合 git add ，fix 后 重新 git add，我这里是有错误 直接 停止 --ext
+  ]
+}
+```
+再次模拟之前 的故意写个 错误的 eslint 示范，比如句尾加个 ';'，或者改单引号为双引号，结果报错如下
+![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f3ef40f154354bb98e19cf1aed3f2e48~tplv-k3u1fbpfcp-watermark.image?)
+> PS： 出错后可以继续使用 `npm run lint:fix` 修复错误
+
+至此配置 lint-staged 成功
