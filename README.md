@@ -629,3 +629,11 @@ test('adds 1 + 2 to equal 3', () => {
   expect(sum(1, 2)).toBe(3);
 });
 ```
+
+记得配置忽略我们 `jest.config.js` 的 `eslint` 校验 这个就没必要校验了
+```js
+// .eslitignore
+/src/static
+/tests/unit
+/jest.config.js
+```
