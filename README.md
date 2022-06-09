@@ -165,8 +165,8 @@ export default defineConfig({
 })
 ```
 
-# 前端工程化开发规范 editConfig+eslint+husky+lint-staged
-## editorConfig 
+# 前端工程化开发规范 editConfig+eslint+husky+lint-staged+jest
+## editorConfig 跨多个编辑器和IDE一致代码风格 
 EditorConfig 有助于维护跨多个编辑器和IDE从事同一项目的多个开发人员的一致编码风格，EditorConfig项目由一种用于定义编码样式的文件格式和一组文本编辑器插件组成，这些文本编辑器插件使编辑器可以读取文件格式并遵循定义的样式，EditorConfig 文件易于阅读，并且可以与版本控制系统很好地协同工作。
 
 通俗地讲，就是由于开发人员的习惯不一样所用的开发编辑器可能不同，在不同的编辑器之前保持代码格式一致的风格。
@@ -209,7 +209,7 @@ indent_size = 2
 insert_final_newline = false
 trim_trailing_whitespace = false
 ```
-## eslint 配置
+## 配置 eslint 代码风格校验
 js校验必备，注意eslint只针对js或ts做校验，按以下方式配置完后可做到保存时自动校验并修复。
 
 安装 `npm install eslint -D`
@@ -406,7 +406,7 @@ module.exports = {
 // npm run lint  // 这里还是有一些需要我们手动修复
 // npm run dev
 ```
-## 提交代码时的检验 husky + lint-staged
+## 提交代码时的校验 husky+lint-staged
 只是单纯引入 eslint 校验如果不强制要求就等于没做，总会有人偷懒，所以还是要约束一下。
 
 husky用于git执行钩子前做校验，
@@ -462,7 +462,7 @@ git commit -m "test husky pre-commit"
 
 > PS： 出错后可以继续使用 `npm run lint:fix` 修复错误
 
-- 5. Uninstall(写在husky)
+- 5. Uninstall(卸载husky)
 `npm uninstall husky && git config --unset core.hooksPath`
 
 
@@ -497,3 +497,135 @@ git commit时触发pre-commit钩子，运行lint-staged命令，对*.js等执行
 > PS： 出错后可以继续使用 `npm run lint:fix` 修复错误
 
 至此配置 lint-staged 成功
+## 单元测试jest
+[官方入门文档](https://jestjs.io/zh-Hans/docs/getting-started)
+### 1. 安装
+`npm install --save-dev jest`
+
+### 2. 配置一个测试函数
+举个例子，我们先写一个两数相加的函数。 首先，根目录创建 `tests/unit/sum.js` 文件︰
+```js
+function sum(a, b) {
+  return a + b;
+}
+module.exports = sum;
+```
+然后，根目录创建 `tests/unit/sum.test.js` 的文件。 此文件中将包含我们的实际测试︰
+```js
+const sum = require('./sum');
+
+test('adds 1 + 2 to equal 3', () => {
+  expect(sum(1, 2)).toBe(3);
+});
+```
+### 3. 配置 package.json
+随后，将下列配置内容添加到您的 package.json：
+```js
+// package.json
+"scripts": {
+  "test:unit": "jest",
+}
+```
+最后，运行 `npm run test:unit` ，Jest将打印下面这个消息：
+```
+tests/unit/sum.test.js
+✓ adds 1 + 2 to equal 3 (5ms)
+```
+如图
+![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2bdf10b4df0b424a8d34abd4dff71331~tplv-k3u1fbpfcp-watermark.image?)
+
+### 4. 生成配置文件 jest.config.js 并初始化
+ - 执行 `npx jest --init` 然后会有下面这些选项，选完后 根目录会生成一个 `jest.config.js` 文件
+```shell
+✔ Would you like to use Jest when running "test" script in "package.json"? … no // 这里由于我们已经配置了 test:unit，所以选no
+✔ Would you like to use Typescript for the configuration file? … no
+✔ Choose the test environment that will be used for testing › node
+✔ Do you want Jest to add coverage reports? … yes
+✔ Which provider should be used to instrument code for coverage? › babel
+✔ Automatically clear mock calls, instances, contexts and results before every test? … yes
+```
+ - 修改 package.json，让jest自动监控测试文件，一有更新，就自动运行测试。在package.json中的jest那里加上--watchAll参数
+```js
+"script": {
+  "test:unit": "jest --watchAll"
+}
+```
+
+ - 生成测试覆盖率报告
+ 如果想修改测试覆盖率报告的文件夹名称，可以在jest.config.js中配置，
+修改这一项 coverageDirectory: "coverage",
+```js
+// coverageDirectory: "coverage",
+// 也可以修改为其他名字
+coverageDirectory: "reports",
+```
+执行命令 `npx jest --coverage`
+在项目根目录下会生成一个文件夹coverage，存放测试覆盖率的文件，或者将package.json 里面增加，然后 `npm run coverage`
+```json
+"scripts": {
+  "coverage": "jest --coverage"
+}
+```
+![image.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/28988ea6cdd846fb9a672a4383e10ff2~tplv-k3u1fbpfcp-watermark.image?)
+
+
+### 5. 配置可以用esModule模块导入的测试环境
+我们运行Jest的时候 当前坏境是一个node环境【node 不支持import ，nodejs采用的是CommonJS的模块化规范，使用require引入模块；而import是ES6的模块化规范关键字】，Jest在node环境下对于esModule的语法无法解析，只辨识commonJS的模块语法
+
+esModule 写法：
+```js
+// math.js
+export function add(a, b) {
+    return a + b
+}
+
+// math.test.js
+import {add} from './math'
+```
+
+实际项目中更多使用的是ES的语法来定义module，但是如果我们直接改成了ES语法，则运行jest就报错了。如何做兼容呢，我们可以使用babel【必须引入babel转义支持，通过babel进行编译，使其变成node的模块化代码。】
+
+安装 babel 支持，我们已经安装过 @babel/core@7.18.2 接下来安装相同版本的 @babel/preset-env@7.18.2
+
+`npm i @babel/core@7.18.2 @babel/preset-env@7.18.2 -D`
+配置babel在项目根目录新建.babelrc文件，并写入以下内容
+```js
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ]
+  ]
+}
+```
+配置完毕，可将sum.js 改为 esModule 的方式引入，再运行`npm run test:unit`，就不会报错
+
+这个过程：
+  - 在运行npm run test之后
+  - jest内部集成一个插件babel-jest
+  - 它会检测当前项目是否安装了babel-core
+  - 如果安装了则会去读取.babelrc配置
+  - 在运行测试之前，会根据babel配置对代码进行转换
+  - 最后，运行转化后的测试用例代码
+
+```js
+// sum.js
+function sum(a, b) {
+    return a + b;
+}
+// module.exports = sum; // CommonJs
+export default sum // EsModule
+
+// sum.test.js
+// const sum = require('./sum'); // CommonJs
+import sum from './sum' // EsModule
+
+test('adds 1 + 2 to equal 3', () => {
+  expect(sum(1, 2)).toBe(3);
+});
+```
