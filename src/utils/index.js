@@ -6,15 +6,15 @@ import {
 } from 'vue'
 
 // 修改图标
-function useFavicon(newIcon) {
+function useFavicon (newIcon) {
   const favicon = ref(newIcon)
 
   const updateIcon = (icon) => {
     document.head
-      .querySelectorAll(`link[rel*="icon"]`)
-      .forEach(el => el.href = `${icon}`)
+      .querySelectorAll('link[rel*="icon"]')
+      .forEach(el => (el.href = `${icon}`))
   }
-  const reset = () => favicon.value = '/favicon.ico'
+  const reset = () => (favicon.value = '/favicon.ico')
 
   watch(favicon,
     (i) => {
@@ -27,11 +27,11 @@ function useFavicon(newIcon) {
   }
 }
 
-function useMouse() {
-  const x = ref(0);
+function useMouse () {
+  const x = ref(0)
   const y = ref(0)
 
-  function update(e) {
+  function update (e) {
     x.value = e.pageX
     y.value = e.pageY
   }
@@ -71,14 +71,14 @@ const isGif = async (file) => {
   // 前面6个16进制，'47 49 46 38 39 61' or '47 49 46 38 37 61'
   // 16进制的转换
   const ret = await blobToString(file.slice(0, 6))
-  const isGif = ret == '47 49 46 38 39 61' || ret == '47 49 46 38 37 61'
+  const isGif = ret === '47 49 46 38 39 61' || ret === '47 49 46 38 37 61'
   return isGif
 }
 
 // 是否png
 const isPng = async (file) => {
   const ret = await blobToString(file.slice(0, 8))
-  const ispng = ret == '89 50 4E 47 0D 0A 1A 0A'
+  const ispng = ret === '89 50 4E 47 0D 0A 1A 0A'
   return ispng
 }
 
@@ -87,7 +87,7 @@ const isJpg = async (file) => {
   const len = file.size
   const start = await blobToString(file.slice(0, 2))
   const tail = await blobToString(file.slice(-2, len))
-  const isjpg = start == 'FF D8' && tail == 'FF D9'
+  const isjpg = start === 'FF D8' && tail === 'FF D9'
   return isjpg
 }
 
@@ -98,30 +98,29 @@ const isImage = async (file) => {
 
 // 防抖
 const debounce = (fn, delay = 300) => {
-  let timer = 0;
+  let timer = 0
   return (...args) => {
     if (timer) {
-      clearTimeout(timer);
+      clearTimeout(timer)
     }
     timer = setTimeout(() => {
-      fn.call(this, ...args);
-    }, delay);
+      fn.call(this, ...args)
+    }, delay)
   }
 }
 
 // 节流
-const throttle = (fn, delay=300) => {
-  let last = 0;
+const throttle = (fn, delay = 300) => {
+  let last = 0
   return (...args) => {
     if (Date.now() - last > delay) {
       last = Date.now()
       setTimeout(() => {
-        fn.call(this, ...args);
-      }, delay);
+        fn.call(this, ...args)
+      }, delay)
     }
   }
 }
-
 
 export {
   useFavicon,

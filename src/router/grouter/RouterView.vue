@@ -1,16 +1,16 @@
 <template>
-  <component :is="comp"></component>
+  <component :is="comp" />
 </template>
 <script setup>
-import { computed } from "vue";
-import { useRouter } from "../grouter/index";
+import { computed } from 'vue'
+import { useRouter } from '../grouter/index'
 
-let router = useRouter();
+const router = useRouter()
 
 const comp = computed(() => {
   const route = router.routes.find(
     (route) => route.path === router.current.value
-  );
-  return route ? route.component : null;
-});
+  )
+  return route ? route.component : null
+})
 </script>

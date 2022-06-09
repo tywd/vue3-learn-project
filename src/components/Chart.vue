@@ -9,7 +9,7 @@
       id="my-chart"
       :class="className"
       :style="{ height: height, width: width }"
-    ></div>
+    />
   </div>
 </template>
 
@@ -19,28 +19,28 @@ import { onMounted, reactive, onBeforeUnmount } from 'vue'
 defineProps({
   className: {
     type: String,
-    default: 'chart',
+    default: 'chart'
   },
   id: {
     type: String,
-    default: 'chart',
+    default: 'chart'
   },
   width: {
     type: String,
-    default: '1000px',
+    default: '1000px'
   },
   height: {
     type: String,
-    default: '500px',
-  },
+    default: '500px'
+  }
 })
 const state = reactive({
-  chart: null,
+  chart: null
 })
 
-let data = []
+const data = []
 let now = new Date(1997, 9, 3)
-let oneDay = 24 * 3600 * 1000
+const oneDay = 24 * 3600 * 1000
 let value = Math.random() * 1000
 const randomData = () => {
   now = new Date(+now + oneDay)
@@ -49,8 +49,8 @@ const randomData = () => {
     name: now.toString(),
     value: [
       [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),
-      Math.round(value),
-    ],
+      Math.round(value)
+    ]
   }
 }
 
@@ -58,13 +58,13 @@ const initChart = () => {
   state.chart = echarts.init(document.getElementById('my-chart'), 'dark')
   const options = reactive({
     title: {
-      text: 'Dynamic Data & Time Axis',
+      text: 'Dynamic Data & Time Axis'
     },
     tooltip: {
       trigger: 'axis',
       formatter: function (params) {
         params = params[0]
-        var date = new Date(params.name)
+        const date = new Date(params.name)
         return (
           date.getDate() +
           '/' +
@@ -76,61 +76,61 @@ const initChart = () => {
         )
       },
       axisPointer: {
-        animation: false,
-      },
+        animation: false
+      }
     },
     xAxis: {
       type: 'time',
       splitLine: {
-        show: false,
-      },
+        show: false
+      }
     },
     yAxis: {
       type: 'value',
       boundaryGap: [0, '100%'],
       splitLine: {
-        show: false,
-      },
+        show: false
+      }
     },
     series: [
       {
         name: 'Fake Data',
         type: 'line',
         showSymbol: false,
-        data: data,
-      },
-    ],
+        data
+      }
+    ]
   })
   state.chart.setOption(options)
 }
 
 onMounted(() => {
-  for (var i = 0; i < 1000; i++) {
+  for (let i = 0; i < 1000; i++) {
     data.push(randomData())
   }
   setInterval(() => {
-    for (var i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++) {
       data.shift()
       data.push(randomData())
     }
     state.chart.setOption({
       series: [
         {
-          data: data,
-        },
-      ],
+          data
+        }
+      ]
     })
   }, 1000)
   initChart()
 })
 
-/* onBeforeUnmount(() => {
+onBeforeUnmount(() => {
   if (!state.chart) {
     return
   }
   state.chart.dispose()
   state.chart = null
-}) */
+})
 </script>
 
 <style scoped>

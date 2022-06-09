@@ -1,27 +1,32 @@
 export default class Request {
-  constructor(instance) {
+  constructor (instance) {
     this._instance = instance
   }
-  request(params) {
+
+  request (params) {
     const {
       url,
       type,
       data,
       onUploadProgress
-    } = params;
-    const subData = type === 'post' ? (onUploadProgress ? {
-      data,
-      onUploadProgress
-    } : {
-      data,
-    }) : {
-      params: data,
-    }
+    } = params
+    const subData = type === 'post'
+      ? (onUploadProgress
+        ? {
+          data,
+          onUploadProgress
+        }
+        : {
+          data
+        })
+      : {
+        params: data
+      }
     return new Promise((resolve, reject) => {
       this._instance({
         url,
         method: type,
-        ...subData,
+        ...subData
       }).then(response => {
         const {
           code,

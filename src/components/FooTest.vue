@@ -6,12 +6,12 @@
 </template>
 
 <script setup>
-import { ref,defineEmits } from 'vue'
-let count = ref(1)
+import { ref, defineEmits } from 'vue'
+const count = ref(1)
 const emit = defineEmits(['addTest'])
-function add() {
+function add () {
   count.value++
-  console.log('count.value: ', count.value);
+  console.log('count.value: ', count.value)
   emit('addTest', count.value)
 }
 </script>

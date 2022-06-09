@@ -1,13 +1,5 @@
-<!--
- * @Author: scy
- * @Date: 2022-04-13 11:12:04
- * @LastEditors: scy
- * @LastEditTime: 2022-04-13 14:06:24
- * @FilePath: /vue3-learn-project/src/pages/Test.vue
- * @Description: Do not edit
--->
 <template>
-  <a-tabs class="my-eltab" v-model:activeKey="activeKey" type="card">
+  <a-tabs v-model:activeKey="activeKey" class="my-eltab" type="card">
     <a-tab-pane key="1" tab="Tab 1">
       Content of Tab Pane 1
       <Chart />
@@ -22,7 +14,7 @@
         :wrapper-col="{ span: 16 }"
         autocomplete="off"
         @finish="onFinish"
-        @finishFailed="onFinishFailed"
+        @finish-failed="onFinishFailed"
       >
         <a-form-item
           label="Username"
@@ -42,7 +34,9 @@
 
         <a-form-item name="remember" :wrapper-col="{ offset: 8, span: 16 }">
           <a-checkbox v-model:checked="formState.remember"
-            >Remember me</a-checkbox
+          >
+            Remember me
+          </a-checkbox
           >
         </a-form-item>
 
@@ -82,12 +76,13 @@
   </a-tabs>
 </template>
 <script setup>
-import { ref, reactive, toRefs, getCurrentInstance } from 'vue'
+import { ref, reactive, getCurrentInstance } from 'vue'
 import Chart from '../components/Chart.vue'
 
 const { proxy, ctx } = getCurrentInstance()
+console.log('ctx: ', ctx)
 const internalInstance = getCurrentInstance()
-console.log('internalInstance: ', internalInstance);
+console.log('internalInstance: ', internalInstance)
 
 // tab1
 
@@ -95,9 +90,9 @@ console.log('internalInstance: ', internalInstance);
 const formState = reactive({
   username: '',
   password: '',
-  remember: true,
+  remember: true
 })
-const { username, password, remember } = formState
+// const { username, password, remember } = formState
 const onFinish = (values) => {
   console.log('Success:', values)
 }
@@ -121,42 +116,42 @@ const state = reactive({
   columns: [
     {
       title: 'Name',
-      dataIndex: 'name',
+      dataIndex: 'name'
     },
     {
       title: 'Age',
-      dataIndex: 'age',
+      dataIndex: 'age'
     },
     {
       title: 'Address',
-      dataIndex: 'address',
-    },
+      dataIndex: 'address'
+    }
   ],
   data: [
     {
       key: '1',
       name: 'John Brown',
       age: 32,
-      address: 'New York No. 1 Lake Park',
+      address: 'New York No. 1 Lake Park'
     },
     {
       key: '2',
       name: 'Jim Green',
       age: 42,
-      address: 'London No. 1 Lake Park',
+      address: 'London No. 1 Lake Park'
     },
     {
       key: '3',
       name: 'Joe Black',
       age: 32,
-      address: 'Sidney No. 1 Lake Park',
+      address: 'Sidney No. 1 Lake Park'
     },
     {
       key: '4',
       name: 'Disabled User',
       age: 99,
-      address: 'Sidney No. 1 Lake Park',
-    },
+      address: 'Sidney No. 1 Lake Park'
+    }
   ],
   rowSelection: {
     onChange: (selectedRowKeys, selectedRows) => {
@@ -169,18 +164,19 @@ const state = reactive({
     getCheckboxProps: (record) => ({
       disabled: record.name === 'Disabled User',
       // Column configuration not to be checked
-      name: record.name,
-    }),
+      name: record.name
+    })
   },
-  pagination: {},
+  pagination: {}
 })
-let current = ref(6)
+const current = ref(6)
 const onChange = (pageNumber) => {
   console.log('Page: ', pageNumber)
 }
 const { data, columns, rowSelection, pagination } = state
+console.log('pagination: ', pagination)
 
-let activeKey = ref('1')
+const activeKey = ref('1')
 const info = () => {
   proxy.$message.info('This is a normal message')
   proxy.$notification.open({
@@ -189,7 +185,7 @@ const info = () => {
       'This is the content of the notification. This is the content of the notification. This is the content of the notification.',
     onClick: () => {
       console.log('Notification Clicked!')
-    },
+    }
   })
 }
 </script>

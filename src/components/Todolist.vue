@@ -2,12 +2,12 @@
 <template>
   <div>
     <span class="dustbin"> 🗑 </span>
-    <input type="text" v-model="title" @keydown.enter="addTodo" />
+    <input v-model="title" type="text" @keydown.enter="addTodo">
     <button v-if="active < all" @click="clear">清理</button>
     <ul v-if="todos.length">
       <transition-group name="flip-list" tag="ul">
         <li v-for="(todo, index) in todos" :key="index">
-          <input type="checkbox" v-model="todo.done" />
+          <input v-model="todo.done" type="checkbox">
           <span :class="{ done: todo.done }"> {{ todo.title }}</span>
           <span class="remove-btn" @click="removeTodo($event, i)"> ❌ </span>
         </li>
@@ -15,11 +15,11 @@
     </ul>
     <div v-else>暂无数据</div>
     <div>
-      全选<input type="checkbox" v-model="allDone" />
+      全选<input v-model="allDone" type="checkbox">
       <span> {{ active }} / {{ all }} </span>
     </div>
     <transition name="modal">
-      <div class="info-wrapper" v-if="showModal">
+      <div v-if="showModal" class="info-wrapper">
         <div class="info">哥，你啥也没输入！</div>
       </div>
     </transition>
@@ -29,7 +29,7 @@
         @enter="enter"
         @after-enter="afterEnter"
       >
-        <div class="animate" v-show="animate.show">📋</div>
+        <div v-show="animate.show" class="animate">📋</div>
       </transition>
     </div>
   </div>
@@ -37,8 +37,8 @@
 
 <script setup>
 import { ref, computed, reactive } from 'vue'
-import { useMouse } from 'utils'
-let { x, y } = useMouse()
+// import { useMouse } from 'utils'
+// const { x, y } = useMouse()
 /* let title = ref("");
 let todos = ref([{ title: "学习Vue", done: false }]);
 function addTodo() {
@@ -61,14 +61,14 @@ let allDone = computed({
       todo.done = value;
     });
   },
-});*/
+}); */
 
-let count = ref(1)
-function add() {
+// const count = ref(1)
+/* function add () {
   count.value++
-}
+} */
 
-let {
+const {
   title,
   todos,
   showModal,
@@ -81,20 +81,20 @@ let {
   animate,
   beforeEnter,
   enter,
-  afterEnter,
+  afterEnter
 } = useTodos()
 
-function useTodos() {
-  let title = ref('')
-  let todos = ref([
+function useTodos () {
+  const title = ref('')
+  const todos = ref([
     {
       title: '学习Vue',
-      done: false,
-    },
+      done: false
+    }
   ])
-  let showModal = ref(false)
+  const showModal = ref(false)
 
-  function addTodo() {
+  function addTodo () {
     if (!title.value) {
       showModal.value = true
       setTimeout(() => {
@@ -104,23 +104,23 @@ function useTodos() {
     }
     todos.value.push({
       title: title.value,
-      done: false,
+      done: false
     })
     title.value = ''
   }
 
-  function removeTodo(e, i) {
+  /*  function removeTodo (e, i) {
     todos.value.splice(i, 1)
-  }
+  } */
 
-  function clear() {
+  function clear () {
     todos.value = todos.value.filter((v) => !v.done)
   }
-  let active = computed(() => {
+  const active = computed(() => {
     return todos.value.filter((v) => !v.done).length
   })
-  let all = computed(() => todos.value.length)
-  let allDone = computed({
+  const all = computed(() => todos.value.length)
+  const allDone = computed({
     get: function () {
       return active.value === 0
     },
@@ -128,26 +128,27 @@ function useTodos() {
       todos.value.forEach((todo) => {
         todo.done = value
       })
-    },
+    }
   })
-  let animate = reactive({ show: false, el: null })
-  function beforeEnter(el) {
-    let dom = animate.el
-    let rect = dom.getBoundingClientRect()
-    let x = window.innerWidth - rect.left - 60
-    let y = rect.top - 10
+  const animate = reactive({ show: false, el: null })
+  function beforeEnter (el) {
+    const dom = animate.el
+    const rect = dom.getBoundingClientRect()
+    const x = window.innerWidth - rect.left - 60
+    const y = rect.top - 10
     el.style.transform = `translate(-${x}px, ${y}px)`
   }
-  function enter(el, done) {
-    document.body.offsetHeight
-    el.style.transform = `translate(0,0)`
+  function enter (el, done) {
+    // Expected an assignment or function call and instead saw an expression
+    // document.body.offsetHeight
+    el.style.transform = 'translate(0,0)'
     el.addEventListener('transitionend', done)
   }
-  function afterEnter(el) {
+  function afterEnter (el) {
     animate.show = false
     el.style.display = 'none'
   }
-  function removeTodo(e, i) {
+  function removeTodo (e, i) {
     animate.el = e.target
     animate.show = true
     todos.value.splice(i, 1)
@@ -165,7 +166,7 @@ function useTodos() {
     animate,
     beforeEnter,
     enter,
-    afterEnter,
+    afterEnter
   }
 }
 </script>

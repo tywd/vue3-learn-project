@@ -2,8 +2,8 @@
   <h1>这是文件上传页</h1>
   <loading-outlined />
   <div
-    ref='drag'
     id="drag"
+    ref="drag"
   >
     <input
       type="file"
@@ -14,9 +14,9 @@
 
   <div>
     <a-progress
-      :strokeWidth='20'
+      :stroke-width="20"
       :percent="uploadProgress"
-    ></a-progress>
+    />
     <p>文件上传的进度</p>
   </div>
   <div>
@@ -25,12 +25,12 @@
   </div>
   <div>
     <a-progress
-      :strokeWidth='20'
+      :stroke-width="20"
       :percent="state.hashProgress"
-    ></a-progress>
+    />
     <p>计算hash的进度</p>
   </div>
-  <!-- chunk.progress 
+  <!-- chunk.progress
       progress<0 报错 显示红色
       == 100 成功 显示绿色
       别的数字 方块高度显示 显示蓝色-->
@@ -42,16 +42,16 @@
     :style="{width:cubeWidth+'px'}"
   >
     <div
-      class="cube"
       v-for="chunk in state.chunks"
       :key="chunk.name"
+      class="cube"
     >
       <div
         :class="{
-              'uploading':chunk.progress>0&&chunk.progress<100,
-              'success':chunk.progress==100,
-              'error':chunk.progress<0
-            }"
+          'uploading':chunk.progress>0&&chunk.progress<100,
+          'success':chunk.progress==100,
+          'error':chunk.progress<0
+        }"
         :style="{height:chunk.progress+'%'}"
       >
         <loading-outlined v-if="chunk.progress<100 && chunk.progress>0" />
@@ -67,43 +67,41 @@ import {
   reactive,
   computed,
   effect,
-  toRefs,
   onMounted,
   getCurrentInstance,
-  watchEffect,
+  watchEffect
 } from 'vue'
-import { isImage } from 'utils'
 import { postUploadFile, checkFile, postUploadBigFile, mergeFile } from '@/api'
-let worker = null
+// const worker = null
 // const SIZE = 1024 * 100 // 切片的大小 100k
 const SIZE = 1024 * 1024 * 2 // 切片大小2M
 const state = reactive({
   file: null, // 取到的要上传的文件
   hashProgress: 0, // 切片hash计算进度条
   chunks: [], // 存储切片
-  uploaded: false, // 用于判断是否秒传成功，已存在文件
+  uploaded: false // 用于判断是否秒传成功，已存在文件
 })
 const drag = ref(null)
 const { proxy } = getCurrentInstance()
 
 // 上传进度
-let uploadProgress = computed(() => {
+const uploadProgress = computed(() => {
   const { chunks, file, uploaded } = state
   if (uploaded) return 100 // 已上传则直接返回上传进度完成
   if (!file || chunks.length === 0) return 0
-  let loaded = chunks
+  const loaded = chunks
     .map((item) => item.chunk.size * item.progress)
     .reduce((acc, cur) => acc + cur, 0)
-  let progress = Number((loaded / file.size).toFixed(2))
+  const progress = Number((loaded / file.size).toFixed(2))
   return progress
 })
 
 // 计算单块 hash计算进度条方块的宽度
-let cubeWidth = computed(() => {
+const cubeWidth = computed(() => {
   return Math.ceil(Math.sqrt(state.chunks.length)) * 20
 })
 
-/* effect(() => {
+effect(() => {
   console.log('effect-chunks: ', state.chunks)
   console.log('effect-state.uploaded: ', state.uploaded)
 })
@@ -111,7 +109,7 @@ let cubeWidth = computed(() => {
 watchEffect(() => {
   console.log('watchEffect-chunks: ', state.chunks)
   console.log('watchEffect-state.uploaded: ', state.uploaded)
-}) */
+})
 
 // 监听input type file
 const handleFileChange = (e) => {
@@ -149,7 +147,7 @@ const bindDragEvents = () => {
 
 // 大文件上传
 const uploadFile = async () => {
-  let { file } = state
+  const { file } = state
   if (!file) return
   // 0.文件指纹校验------解决file.name可能被篡改的问题-------------------------
   /* if (!(await isImage(file))) {
@@ -164,9 +162,9 @@ const uploadFile = async () => {
     // 切片hash计算的三种方式
     hash = await calculateHashSample() // 1.创建切片----此为抽样hash切片------专为大文件设计-------------------------
     console.log('hash: ', hash)
-    // const hash1 = await calculateHashIdle(fileChunks)
+    // const hash1 = await calculateHashIdle(fileChunks) // 时间切片
     // console.log('hash1: ', hash1)
-    // const hash2 = await calculateHashWorker(fileChunks)
+    // const hash2 = await calculateHashWorker(fileChunks) // web-worker多进程切片
     // console.log('hash2: ', hash2)
     state.hash = hash
   } catch (error) {
@@ -193,7 +191,7 @@ const uploadFile = async () => {
       index,
       chunk: chunk.file,
       // 设置进度条，已经上传的，设为100
-      progress: uploadedList && uploadedList.indexOf(name) > -1 ? 100 : 0,
+      progress: uploadedList && uploadedList.indexOf(name) > -1 ? 100 : 0
     }
   })
   // 2.切片hash计算-----------------------------------END
@@ -221,14 +219,14 @@ const createFileChunks = (file, size = SIZE) => {
 
 // 2-1. 切片hash计算的第二种方式
 // 用 web-worker 开辟多一个全新的进程
-const calculateHashWorker = async (chunks) => {
+/* const calculateHashWorker = async (chunks) => {
   return new Promise((resolve, reject) => {
     if (!chunks || chunks.length <= 0) {
       reject(false)
       return
     }
     worker = new Worker(new URL('../static/hash.js', import.meta.url))
-    worker.postMessage({ chunks: chunks }) //
+    worker.postMessage({ chunks }) //
     worker.onmessage = (e) => {
       const { progress, hash } = e.data
       state.hashProgress = Number(progress.toFixed(2))
@@ -237,14 +235,14 @@ const calculateHashWorker = async (chunks) => {
       }
     }
   })
-}
+} */
 
 // 2-2. 切片hash计算的第三种方式用 requestIdleCallback 利用浏览器的空闲时间
 // 60fps
 // 1秒渲染60次 渲染1次 1帧，大概16.6ms
 // |帧(system task，render，script)空闲时间  |帧 painting idle   |帧   |帧   |
 // 借鉴fiber架构
-const calculateHashIdle = async (chunks) => {
+/* const calculateHashIdle = async (chunks) => {
   return new Promise((resolve) => {
     const spark = new sparkMD5.ArrayBuffer()
     let count = 0
@@ -282,7 +280,7 @@ const calculateHashIdle = async (chunks) => {
     // 浏览器一旦空闲，就会调用workLoop
     window.requestIdleCallback(workLoop)
   })
-}
+} */
 
 // 2-3. 切片hash计算 spark-md5 此处采用抽样hash 避免文件过大时计算hash时间过长
 const calculateHashSample = async () => {
@@ -297,7 +295,7 @@ const calculateHashSample = async () => {
     const size = file.size
     const offset = SIZE // 抽样hash通常用于计算文件过大，比如每2M切一片 2 * 1024 * 1024
     // 第一个2M，最后一个区块数据全要
-    let fileChunks = [file.slice(0, offset)]
+    const fileChunks = [file.slice(0, offset)]
     let cur = offset
     while (cur < size) {
       // 当前切片位置小于总长度
@@ -388,7 +386,7 @@ const resquestControl = async (chunks, limit = 3) => {
           } else {
             // 错误三次 直接在调用start时停止
             isStop = true
-            reject()
+            reject(null)
           }
         }
       }
@@ -412,7 +410,7 @@ const mergeFileChunks = async () => {
   return await mergeFile({
     ext: file.name.split('.').pop(),
     size: SIZE,
-    hash: hash,
+    hash
   })
 }
 
@@ -430,7 +428,7 @@ const uploadBigRequest = async (formData, i) => {
       state.chunks[i].progress = Number(
         ((progress.loaded / progress.total) * 100).toFixed(2)
       )
-    },
+    }
   })
 }
 
@@ -440,13 +438,13 @@ const handleBtn = () => {
   if (!file) return
   const formData = getFormData(file)
   postUploadFile({
-    formData,
+    formData
   })
-    .then(function(response) {
+    .then(function (response) {
       console.log('handleBtn: ', response)
       proxy.$message.info('上传成功')
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.log('error: ', error)
     })
 }

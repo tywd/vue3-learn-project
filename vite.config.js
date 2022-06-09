@@ -13,6 +13,9 @@ import {
   AndDesignVueResolve,
 } from 'vite-plugin-style-import' // 自动导入非组件模块的样式，入弹窗提示andDesign的message
 import path from 'path'
+
+import eslintPlugin from 'vite-plugin-eslint'
+
 const {
   getThemeVariables
 } = require('ant-design-vue/dist/theme');
@@ -47,6 +50,13 @@ export default defineConfig({
         },
       ],
     }),
+
+    // vite eslint
+    eslintPlugin({
+      include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue'],
+      exclude: ['src/static/*.js'], // default node_modules
+      cache: false
+    })
   ],
   // 1. If you are using the ant-design series, you need to configure this
   // 2. Make sure less is installed in the dependency `yarn add less -D`

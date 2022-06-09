@@ -2,7 +2,7 @@
  * @Author: tywd
  * @Date: 2022-04-18 21:41:32
  * @LastEditors: tywd
- * @LastEditTime: 2022-04-18 21:41:33
+ * @LastEditTime: 2022-06-09 16:36:20
  * @FilePath: /vue3-learn-project/src/pages/TestEffect.vue
  * @Description: Do not edit
 -->
@@ -12,21 +12,22 @@
     <h1><button @click="add">+</button>{{ num.currentNum }}</h1>
     <button @click="testStop">testStop</button>
     <button @click="testRunner">testRunner</button>
-    <div>progress: {{progress}}</div>
+    <div>progress: {{ progress }}</div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, effect, stop } from 'vue'
 
-let str = ref('ty')
-let obj = reactive({
-  count: 1,
+const str = ref('ty')
+console.log('str: ', str)
+const obj = reactive({
+  count: 1
 })
-let double = computed(() => obj.count * 2)
-let progress = computed(() => {
-  
-  let p = num.chunks.map((v, i) => v.a * (i+1)).reduce((acc, cur) => acc + cur, 0)
+const double = computed(() => obj.count * 2)
+console.log('double: ', double)
+const progress = computed(() => {
+  const p = num.chunks.map((v, i) => v.a * (i + 1)).reduce((acc, cur) => acc + cur, 0)
   return p
 })
 const num = reactive({ currentNum: 0, chunks: [] })
@@ -50,12 +51,12 @@ effect(
   // }
 )
 
-function add() {
+function add () {
   num.currentNum++
-  let arr = [
+  const arr = [
     { a: 1, b: 2 },
     { a: 1, b: 2, c: 3 },
-    { a: 1, b: 2, c: 3, d: 4 },
+    { a: 1, b: 2, c: 3, d: 4 }
   ]
   /* arr.forEach((e,i)=>{
     num.chunks.push(e)
@@ -63,11 +64,11 @@ function add() {
   num.chunks = arr
 }
 
-function testStop() {
+function testStop () {
   stop(runner) // stop后除非执行 runner 否则 effect 将不会再执行
 }
 
-function testRunner() {
+function testRunner () {
   runner()
 }
 </script>

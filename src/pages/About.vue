@@ -7,13 +7,13 @@
 
 <script setup>
 import { ref, reactive, computed, watchEffect, effect, onMounted } from 'vue'
-import { useRouter } from "vue-router";
-let router = useRouter();
-let str = ref('ty')
-let obj = reactive({
-  count: 1,
+import { useRouter } from 'vue-router'
+const router = useRouter()
+const str = ref('ty')
+const obj = reactive({
+  count: 1
 })
-let double = computed(() => obj.count * 2)
+const double = computed(() => obj.count * 2)
 
 const num = reactive({ currentNum: 0 })
 
@@ -21,7 +21,7 @@ let changeValue
 
 effect(() => {
   changeValue = num.currentNum
-  // console.log('effect ', changeValue, num.currentNum)
+  console.log('effect ', changeValue, num.currentNum)
   console.log('effect ', obj.count, double.value, str.value)
   // console.log('effect ', obj.count, str.value)
 })
@@ -36,7 +36,7 @@ onMounted(() => {
   console.log('router: ', router)
 })
 
-function add() {
+function add () {
   obj.count++
   // num.currentNum++
 }

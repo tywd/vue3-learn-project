@@ -1,8 +1,8 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import HelloWorld from "./components/HelloWorld.vue";
-import { message } from 'ant-design-vue'
+// import HelloWorld from './components/HelloWorld.vue'
+// import { message } from 'ant-design-vue'
 </script>
 
 <template>
@@ -15,7 +15,7 @@ import { message } from 'ant-design-vue'
     <router-link to="/goods-list">GoodsList</router-link> |
     <router-link to="/upload-file">文件上传</router-link> |
     <!-- <router-link to="/ty">天宇无敌</router-link> -->
-    <router-view></router-view>
+    <router-view />
     <!-- <router-view v-slot="{ Component }">
       <transition name="route" mode="out-in">
         <component :is="Component" />

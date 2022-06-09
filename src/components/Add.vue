@@ -4,14 +4,15 @@
   </div>
 </template>
 
-<script >
-import { ref, onMounted, defineEmits } from 'vue'
+<script>
+import { ref, onMounted } from 'vue'
 export default {
-  setup(props, { emit }) {
-    let count = ref(1)
-    let color = ref('red')
+  emits: ['notice-add'],
+  setup (props, { emit }) {
+    const count = ref(1)
+    const color = ref('red')
     // const emit = defineEmits(['notice-add'])
-    function add() {
+    function add () {
       count.value++
       color.value = Math.random() > 0.5 ? 'blue' : 'red'
       emit('notice-add', count.value)
@@ -20,9 +21,9 @@ export default {
     return {
       count,
       color,
-      add,
+      add
     }
-  },
+  }
 }
 
 /* */
