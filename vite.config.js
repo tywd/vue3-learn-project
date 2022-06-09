@@ -54,8 +54,8 @@ export default defineConfig({
     // vite eslint
     eslintPlugin({
       include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue'],
-      exclude: ['src/static/*.js'], // default node_modules
-      cache: false
+      // exclude: ['src/static/*.js'], // default node_modules
+      cache: false // cache这个属性一定要带上false，否则修复的问题还是会不停报出来错，有毒。
     })
   ],
   // 1. If you are using the ant-design series, you need to configure this

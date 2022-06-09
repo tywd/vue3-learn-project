@@ -322,10 +322,15 @@ export default defineConfig({
     eslintPlugin({
       include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue'],
       exclude: ['./node_modules/**'],
-      cache: false
+      cache: false // cache这个属性一定要带上false，否则修复的问题还是会不停报出来错，有毒。
     })
   ]
 }
+```
+>PS: exclude 一直不生效，所以直接 新增了一个 .eslintignore 文件来做一些不需要走 eslint校验的路径
+```js
+// .eslintignore
+src/static
 ```
 修改eslint配置文件
 ```js
@@ -400,4 +405,51 @@ module.exports = {
 // 控制台执行
 // npm run lint  // 这里还是有一些需要我们手动修复
 // npm run dev
+```
+## 提交代码时的检验 husky + lint-staged
+只是单纯引入 eslint 校验如果不强制要求就等于没做，总会有人偷懒，所以还是要约束一下。
+
+husky用于git执行钩子前做校验，
+
+lint-staged用于只校验git暂存区的文件。
+
+这里要实现的功能是在git commit命令运行时先校验lint（包括eslint）是否通过，未通过则不予commit。
+
+husky 8.x 的使用参考 [官网 husky-usage](https://typicode.github.io/husky/#/?id=usage)
+- 1. 初始化
+```js
+// 初始化
+npx husky-init && npm install
+```
+初始化后根目录会出现一个新目录 `.husky` 下面有 .husky/pre-commit 和 .husky/_/.husky.sh 等
+
+- 2. 在安装后自动启用 Git 挂钩，请编辑 package.json
+`npm set-script prepare "husky install"` 配置如下
+```json
+// package.json
+{
+  "scripts": {
+    "prepare": "husky install"
+  }
+}
+```
+
+- 3. 将命令添加到钩子或创建新命令 husky add
+```js
+// 执行下面命令会 将命令添加到钩子或创建新命令，请使用 husky add <file> [cmd]（不要忘记先运行 husky install）上面已经初始化过了。
+npx husky add .husky/pre-commit "npm test"
+```
+之后根据我们 eslint 配置好的校验，故意给我们的文件做个错误示例，\
+看会不会 commit 时 自动执行 .husky/pre-commit 中写的指令 npm test 对我们的代码进行校验
+
+- 4. Uninstall
+`npm uninstall husky && git config --unset core.hooksPath`
+
+配置husky
+```js
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint" //"测试 + 代码规范"
+    }
+  }
 ```

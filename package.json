@@ -7,7 +7,9 @@
     "build": "vite build",
     "build:dev": "vue-tsc --noEmit && vite build --mode=development",
     "preview": "vite preview",
-    "lint": "eslint --fix --ext .js,.vue src"
+    "test": "npm run lint",
+    "lint": "eslint --fix --ext .js,.vue src",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^6.1.0",
@@ -35,7 +37,7 @@
     "eslint-plugin-n": "^15.2.2",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-vue": "^9.1.0",
-    "husky": "^8.0.1",
+    "husky": "^8.0.0",
     "less": "^4.1.2",
     "node-sass": "^7.0.1",
     "qs": "^6.10.3",
@@ -52,7 +54,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "测试 + 代码规范"
+      "pre-commit": "npm run lint"
     }
   }
 }
