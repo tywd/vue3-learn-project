@@ -165,7 +165,7 @@ export default defineConfig({
 })
 ```
 
-# 前端工程化开发规范 editConfig+eslint+husky+lint-staged+jest
+# 前端工程化开发规范 editConfig+eslint+husky+lint-staged+jest/vitest
 ## editorConfig 跨多个编辑器和IDE一致代码风格 
 EditorConfig 有助于维护跨多个编辑器和IDE从事同一项目的多个开发人员的一致编码风格，EditorConfig项目由一种用于定义编码样式的文件格式和一组文本编辑器插件组成，这些文本编辑器插件使编辑器可以读取文件格式并遵循定义的样式，EditorConfig 文件易于阅读，并且可以与版本控制系统很好地协同工作。
 
@@ -637,3 +637,8 @@ test('adds 1 + 2 to equal 3', () => {
 /tests/unit
 /jest.config.js
 ```
+
+
+## 基于 vite 的 单元测试框架 vitest
+[# vue官网介绍 - vitest](https://staging-cn.vuejs.org/guide/scaling-up/testing.html#recipes)
+[# vitest 中文官网](https://cn.vitest.dev/)
